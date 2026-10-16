@@ -19,6 +19,7 @@ open import Core.Arrows
 open import Core.CocartesianSquares
 open import Core.CanonicalPushouts
 open import Core.PushoutEquiv
+open import Core.FunctorialityPushouts
 open import Ergonomics.Marker
 }
 }
@@ -188,6 +189,43 @@ _*₁_
       {B : Type 𝓥} {B' : Type 𝓦}
     → (A → A') → (B → B') → A * B → A' * B'
 f *₁ g = pushout-rec (mk-cocone (ι₁ ∘ f) (ι₂ ∘ g) (glue ∘ (f ×₁ g)))
+
+*₁-id : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : Type 𝓥}
+      → id {A = A * B} ~ id {A = A} *₁ id {A = B}
+*₁-id a =
+  Pushout-id a
+  ∙ ap (λ - → pushout-rec (mk-cocone ι₁ ι₂ -) a)
+       (funext→ λ x → ∙-reflr _)
+
+*-eq-left
+  : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : Type 𝓥}
+  → {a a' : A}
+  → (p : a ＝ a')
+  → {b : B}
+  → glue {A = A × B} {f = fst} {snd} (a , b) ＝ ap ι₁ p ∙ glue (a' , b)
+*-eq-left refl = refl
+
+*₁-~l
+  : ∀ {𝓤 𝓜 𝓥 𝓦} {A : Type 𝓤} {A' : Type 𝓜}
+      {B : Type 𝓥} {B' : Type 𝓦}
+    → {f1 f2 : A → A'} {g : B → B'}
+    → f1 ~ f2
+    → f1 *₁ g ~ f2 *₁ g
+*₁-~l H =  pushout-rec-unique _ _ (ι₁ ◃h H) ~refl λ where
+  x@(a , b) →  ∙-reflr _ ∙  pushout-rec-apβ x ∙ *-eq-left (H a)
+
+*₁-∘
+  : ∀ {𝓤 𝓜 𝓛 𝓥 𝓦 𝓚} {A : Type 𝓤} {A' : Type 𝓜} {A'' : Type 𝓛}
+      {B : Type 𝓥} {B' : Type 𝓦} {B'' : Type 𝓚}
+    → {f : A → A'} {f' : A' → A''} {g : B → B'} {g' : B' → B''}
+    → (f' *₁ g') ∘ (f *₁ g) ~ (f' ∘ f) *₁ (g' ∘ g)
+*₁-∘ {f = f} {f'} {g} {g'} =
+  pushout-rec-unique _ _ ~refl ~refl λ where
+    (a , b) →
+      ∙-reflr _
+      ∙ ap-∘ _ (pushout-rec _) (glue (a , b))
+      ∙ ap (ap (pushout-rec _)) (pushout-rec-apβ (a , b))
+      ∙ pushout-rec-apβ (f a , g b)
 
 *₁-is-equiv
   : ∀ {𝓤 𝓜 𝓥 𝓦} {A : Type 𝓤} {A' : Type 𝓜}

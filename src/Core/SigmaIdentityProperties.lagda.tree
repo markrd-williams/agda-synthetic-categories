@@ -1,0 +1,56 @@
+\date{2025-02-24}
+\title{Characterising identity in #{Σ}-types}
+\taxon{Module}
+
+\import{stt-macros}
+
+\agda{
+module Core.SigmaIdentityProperties where
+}
+
+\agda-imports{
+\agda{
+open import Foundations.Prelude
+}
+}
+
+\agda{
+
+＝Σ-∙ :
+   ∀ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥} {x y z : Σ A B}
+   → x ＝Σ y → y ＝Σ z → x ＝Σ z
+＝Σ-∙ (p , q) (p' , q') .fst = p ∙ p'
+＝Σ-∙ (p , q) (p' , q') .snd = transIdᶠ p p' q q'
+
+＝Σ-ap-total-map :
+  ∀ {𝓤 𝓥}
+    {A : Type 𝓤}
+    {B B' : A → Type 𝓥}
+    (f : (a : A) → B a → B' a)
+    {x y : Σ A B}
+   → (p : x ＝Σ y)
+   → total-map f x ＝Σ total-map f y
+＝Σ-ap-total-map f (refl , refl) = refl , refl
+
+
+Σ-path→-ap-total-map :
+  ∀ {𝓤 𝓥}
+    {A : Type 𝓤}
+    {B B' : A → Type 𝓥}
+    (f : (a : A) → B a → B' a)
+    {x y : Σ A B}
+   → (p : x ＝Σ y)
+   → ap (total-map f) (Σ-path→ p) ＝ Σ-path→ (＝Σ-ap-total-map f p)
+Σ-path→-ap-total-map f (refl , refl) = refl
+
+Σ-path→-∙ :
+  ∀ {𝓤 𝓥}
+    {A : Type 𝓤}
+    {B : A → Type 𝓥}
+    {x y z : Σ A B}
+   → (p : x ＝Σ y)
+   → (q : y ＝Σ z)
+   → Σ-path→ (＝Σ-∙ p q) ＝ Σ-path→ p ∙ Σ-path→ q
+Σ-path→-∙ (refl , refl) (refl , q') = refl
+
+}

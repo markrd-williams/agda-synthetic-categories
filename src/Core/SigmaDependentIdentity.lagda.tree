@@ -1,0 +1,42 @@
+\date{2026-10-15}
+\title{Characterising dependent identity in #{Σ}-types}
+\taxon{Module}
+
+\import{stt-macros}
+
+\agda{
+module Core.SigmaDependentIdentity where
+}
+
+\agda-imports{
+\agda{
+open import Foundations.Prelude
+}
+}
+
+
+
+\agda{
+
+Id-IdΣ : ∀ {𝓤 𝓥}
+      {A : Type 𝓤}
+      {B : A → Type 𝓥}
+      {x y : Σ A B}
+     → x ＝Σ y → x ＝Σ y → Type (𝓤 ⊔ 𝓥)
+Id-IdΣ p q = p ＝Σ q
+
+Id-IdΣ→ :
+ ∀ {𝓤 𝓥}
+      {A : Type 𝓤}
+      {B : A → Type 𝓥}
+      {x y : Σ A B}
+     → (p : x ＝Σ y)
+     → (q : x ＝Σ y)
+     →  p ＝Σ q
+     →  Σ-path→ p ＝ Σ-path→ q
+Id-IdΣ→ p q H
+  =  sym (_≃_.ε Σ-path (Σ-path→ p)) ∙ ap Σ-path→ (_≃_.η Σ-path _ ∙ Σ-path→ H ∙ sym (_≃_.η Σ-path _)) ∙ _≃_.ε Σ-path (Σ-path→ q)
+
+}
+
+}
