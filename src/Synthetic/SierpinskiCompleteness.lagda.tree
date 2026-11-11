@@ -138,10 +138,10 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
   ε̃ i (x , j , p) .snd =  (ψ *₁ id) x
 
   H-path : (i : Δ¹) (x : (i ＝ i0) * X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1)) →  (χ *₁ σ-part X i x) p ＝ (ψ *₁ id) x
-  H-path i x j p = (χ *₁ σ-part X i x) p ＝⟨ sym (*₁-∘ p) ⟩
+  H-path i x j p = (χ *₁ σ-part X i x) p ＝⟨ sym (*₁-∘ _ _ _ _ p) ⟩
          ((χ *₁ id) ∘ (id *₁ σ-part X i x)) p ＝⟨ ap (χ *₁ id) (Sierpinski-interchange X (j ＝ i0) i x p) ⟩
-         ((χ *₁ id) ∘ (τ-part (j ＝ i0) i p) *₁ id) x ＝⟨ *₁-∘ x ⟩
-         ((χ ∘ (τ-part (j ＝ i0) i p)) *₁ id) x ＝⟨⟩  *₁-~l (λ _ → carrier-is-set _ _ _ _) x
+         ((χ *₁ id) ∘ (τ-part (j ＝ i0) i p) *₁ id) x ＝⟨ *₁-∘ _ _ _ _ x ⟩
+         ((χ ∘ (τ-part (j ＝ i0) i p)) *₁ id) x ＝⟨⟩  *₁-htpy (λ _ → carrier-is-set _ _ _ _) ~refl x
 
   H : (i : Δ¹)
       → ε̄ i ∘ (σ-part X i ×₁ id) ~ ε̃ i ∘ id ×₁ σ (i ＝ i1)
@@ -191,7 +191,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
   f-path i x j p = funext→ λ a →
            ap x (carrier-is-set _ _ _ _)
            ∙ σ-part-nat' x ((χ *₁ id) p) a
-           ∙ happly (ap (σ-part X (i ∧ j)) (*₁-∘ p)) a
+           ∙ happly (ap (σ-part X (i ∧ j)) (*₁-∘ _ _ _ _ p)) a
 
   S : (i : Δ¹) → Arrow-map (pushout-product (σ-part X i) (σ (i ＝ i1)))  (σ X)
   S i .Arrow-Π.top = ε̄̃ i
@@ -219,7 +219,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
         →  (λ a → σ-part-nat ϕ ψ a x)   ＝
               (λ a → (ap (σ-part X i x) (carrier-is-set _ _ _ _))
                   ∙ (σ-part-nat' (σ-part X i x) ((χ *₁ id) p) a)
-                  ∙ (happly (ap (σ-part X (i ∧ j)) (*₁-∘ p)) a))
+                  ∙ (happly (ap (σ-part X (i ∧ j)) (*₁-∘ _ _ _ _ p)) a))
                   ∙h happly (ap (σ-part X (i ∧ j)) (H-path i x j p))
       lem j = pushout-ind _
         (mk-coconeᵈ
@@ -231,7 +231,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
          (λ x → pushout-ind _
            (mk-coconeᵈ
              (λ p → funext→ λ q → ¡ (h (sym p ∙ ϕ' q)))
-             (λ p → funext→ λ q → sym (∙-reflr _ ∙ ∙-reflr _ ∙ ap-const _))
+             (λ p → funext→ λ q → sym (ap₂ (_∙_) (∙-reflr _ ∙ ap-const _) refl))
              λ {(p , _) → help funext≃ _ _ (funext→ (λ q → ¡ (h (sym p ∙ ϕ' q))))}))
          λ { (p , x) → funext→ (pushout-ind _
            (mk-coconeᵈ
@@ -313,13 +313,13 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
 
   top-Σ-path : ∀ i x →  ε̄̃ i (g (i , x) .snd)  ＝Σ (( i , x ))
   top-Σ-path i x .fst = ∧-idem
-  top-Σ-path i x .snd = Idᶠ-inr (*₁-~ (λ _ → is-prop←is-truncated trunc! _ _) (λ _ → (sym (tr-const _))) x ∙ sym (tr-* (sym ∧-idem) x))
+  top-Σ-path i x .snd = Idᶠ-inr (*₁-htpy (λ _ → prop!) (λ _ → (sym (tr-const _))) x ∙ sym (tr-* (sym ∧-idem) x))
 
   top : ∀ i x →  ε̄̃ i (g (i , x) .snd) ＝ (i , x)
   top i x = Σ-path→ (top-Σ-path i x)
 
   bot : ∀ i x → ε i (g' (i , x) .snd) ＝ (i , x)
-  bot i x = Σ-path→ (∧-idem , Idᶠ-inr (sym (tr-→-domain-fam (sym ∧-idem) x ∙ ap (x ∘_) (is-prop←is-truncated trunc! _ _))))
+  bot i x = Σ-path→ (∧-idem , Idᶠ-inr (sym (tr-→-domain-fam (sym ∧-idem) x ∙ ap (x ∘_) prop!)))
 
   sierpinski-retract : Arrow-map-path (paste-squares right-square left-square) id-square
   sierpinski-retract .fst = uncurry top
@@ -341,7 +341,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
                                  (sym
                                   (tr-→-domain-fam (sym ∧-idem) (σ-part X i x) ∙
                                    ap (σ-part X i x ∘_)
-                                   (is-prop←is-truncated trunc! _ ϕ))) ∎)
+                                   prop!)) ∎)
                             )))
        ⟩
      uncurry bot ∘ σ X ~⟨  ~sym (∙h-reflr _) ⟩

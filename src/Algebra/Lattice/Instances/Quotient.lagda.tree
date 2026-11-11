@@ -49,13 +49,8 @@ module _
                        (λ where (x , y , r) z → glue-quot (~-∨ r reflexive))
                        (λ where x (y , z , r) → glue-quot (~-∨ reflexive r))
 
-  QuotLattice :  Lattice (A / R)
-  QuotLattice .Lattice.0l = ι-quot 0l
-  QuotLattice .Lattice.1l = ι-quot 1l
-  QuotLattice .Lattice._∧_ = _Q∧_
-  QuotLattice .Lattice._∨_ = _Q∨_
-
-  QuotLattice .Lattice.str-is-lattice .is-lattice.∧-assoc {x} {y} {z} =
+  quot-is-lattice : is-lattice (ι-quot 0l) (ι-quot 1l) _Q∧_ _Q∨_
+  quot-is-lattice .is-lattice.∧-assoc {x} {y} {z} =
     Quot-elim-prop (λ x' → Quot-elim-prop (λ y' → Quot-elim-prop (λ z' →
       ι-quot x' Q∧ (ι-quot y' Q∧ ι-quot z') ＝⟨ ap (ι-quot x' Q∧_) (Quot-rec₂β _ _ _ y' z') ⟩
       ι-quot x' Q∧ (ι-quot (y' ∧ z'))       ＝⟨ Quot-rec₂β _ _ _ x' (y' ∧ z') ⟩
@@ -65,7 +60,7 @@ module _
       (ι-quot x' Q∧ ι-quot y') Q∧ ι-quot z' ∎
       ))) x y z
 
-  QuotLattice .Lattice.str-is-lattice .is-lattice.∨-assoc {x} {y} {z} =
+  quot-is-lattice .is-lattice.∨-assoc {x} {y} {z} =
     Quot-elim-prop (λ x' → Quot-elim-prop (λ y' → Quot-elim-prop (λ z' →
       ι-quot x' Q∨ (ι-quot y' Q∨ ι-quot z') ＝⟨ ap (ι-quot x' Q∨_) (Quot-rec₂β _ _ _ y' z') ⟩
       ι-quot x' Q∨ (ι-quot (y' ∨ z'))       ＝⟨ Quot-rec₂β _ _ _ x' (y' ∨ z') ⟩
@@ -75,7 +70,7 @@ module _
       (ι-quot x' Q∨ ι-quot y') Q∨ ι-quot z' ∎
       ))) x y z
 
-  QuotLattice .Lattice.str-is-lattice .is-lattice.∧-comm {x} {y} =
+  quot-is-lattice .is-lattice.∧-comm {x} {y} =
     (Quot-elim-prop λ x' → Quot-elim-prop λ y' →
       ι-quot x' Q∧ ι-quot y' ＝⟨ Quot-rec₂β _ _ _ x' y' ⟩
       ι-quot (x' ∧ y')       ＝⟨ ap ι-quot ∧-comm ⟩
@@ -83,14 +78,14 @@ module _
       ι-quot y' Q∧ ι-quot x' ∎) x y
 
 
-  QuotLattice .Lattice.str-is-lattice .is-lattice.∨-comm {x} {y} =
+  quot-is-lattice .is-lattice.∨-comm {x} {y} =
     (Quot-elim-prop λ x' → Quot-elim-prop λ y' →
       ι-quot x' Q∨ ι-quot y' ＝⟨ Quot-rec₂β _ _ _ x' y' ⟩
       ι-quot (x' ∨ y')       ＝⟨ ap ι-quot ∨-comm ⟩
       ι-quot (y' ∨ x')       ＝⟨ sym (Quot-rec₂β _ _ _ y' x') ⟩
       ι-quot y' Q∨ ι-quot x' ∎) x y
 
-  QuotLattice .Lattice.str-is-lattice .is-lattice.∨-∧-abs {x} {y} =
+  quot-is-lattice .is-lattice.∨-∧-abs {x} {y} =
     (Quot-elim-prop λ x' → Quot-elim-prop λ y' →
       ι-quot x' Q∨ (ι-quot x' Q∧ ι-quot y') ＝⟨ ap (ι-quot x' Q∨_) (Quot-rec₂β _ _ _ x' y') ⟩
       ι-quot x' Q∨ (ι-quot (x' ∧ y'))       ＝⟨ Quot-rec₂β _ _ _ x' (x' ∧ y') ⟩
@@ -98,24 +93,27 @@ module _
       ι-quot x' ∎) x y
 
 
-  QuotLattice .Lattice.str-is-lattice .is-lattice.∧-∨-abs {x} {y} =
+  quot-is-lattice .is-lattice.∧-∨-abs {x} {y} =
     (Quot-elim-prop λ x' → Quot-elim-prop λ y' →
       ι-quot x' Q∧ (ι-quot x' Q∨ ι-quot y') ＝⟨ ap (ι-quot x' Q∧_) (Quot-rec₂β _ _ _ x' y') ⟩
       ι-quot x' Q∧ (ι-quot (x' ∨ y'))       ＝⟨ Quot-rec₂β _ _ _ x' (x' ∨ y') ⟩
       ι-quot (x' ∧ (x' ∨ y'))               ＝⟨ ap ι-quot ∧-∨-abs ⟩
       ι-quot x' ∎) x y
 
-  QuotLattice .Lattice.str-is-lattice .is-lattice.0-bottom {x} =
+  quot-is-lattice .is-lattice.0-bottom {x} =
     (Quot-elim-prop λ x' →
       ι-quot x' Q∨ ι-quot 0l ＝⟨ Quot-rec₂β _ _ _ x' 0l ⟩
       ι-quot (x' ∨ 0l)       ＝⟨ ap ι-quot 0-bottom ⟩
       ι-quot x' ∎) x
 
-  QuotLattice .Lattice.str-is-lattice .is-lattice.1-top {x} =
+  quot-is-lattice .is-lattice.1-top {x} =
     (Quot-elim-prop λ x' →
       ι-quot x' Q∧ ι-quot 1l ＝⟨ Quot-rec₂β _ _ _ x' 1l ⟩
       ι-quot (x' ∧ 1l)       ＝⟨ ap ι-quot 1-top ⟩
       ι-quot x' ∎) x
+
+  QuotLattice : Lattice (A / R)
+  QuotLattice = mk-lattice (ι-quot 0l) (ι-quot 1l) _Q∧_ _Q∨_ quot-is-lattice
 
   ι-quot-is-lattice-hom : is-lattice-hom L QuotLattice ι-quot
   ι-quot-is-lattice-hom .is-lattice-hom.pres-∨ = sym (Quot-rec₂β _ _ _ _ _)
@@ -207,15 +205,14 @@ module _
   pres-⟪⟫-untrunc x y (⟪⟫-∧ r s) = Lf.pres-∧ ∙ ap₂ (_∧_) (pres-⟪⟫-untrunc _ _ r) (pres-⟪⟫-untrunc _ _ s) ∙ sym Lf.pres-∧
 
   pres-⟪⟫ : (x y : A) → (⟪⟫-rel {L = L} R x y) → f x ＝ f y
-  pres-⟪⟫ x y = Trunc.ind (λ a → trunc!) (pres-⟪⟫-untrunc x y)
-
+  pres-⟪⟫ x y = Trunc.ind (λ a → is-prop!) (pres-⟪⟫-untrunc x y)
 
   QuotLattice-⟪⟫-rec :
-    is-lattice-hom (QuotLattice L ⟪ R ⟫) M
-                   (Quot-rec f λ { (x , y , r) → pres-⟪⟫ x y r })
+    is-lattice-hom
+      (QuotLattice L ⟪ R ⟫) M
+      (Quot-rec f λ { (x , y , r) → pres-⟪⟫ x y r })
   QuotLattice-⟪⟫-rec = QuotLattice-rec L ⟪ R ⟫ M f Lf pres-⟪⟫
 }
-
 
 \p{Lattice quotients of #{L}-algebras continue to be algebras.
   We complete the recursion princple into an equivalence.}
@@ -294,7 +291,7 @@ module _
         qinv .fst f .snd x y r = ap (fst (fst f)) (glue-quot r)
         qinv .snd .fst (f , h) =
           ext! (Quot-rec-β _ _
-               , λ _ _ _ → is-prop←is-truncated trunc! _ _)
+               , λ _ _ _ → prop!)
         qinv .snd .snd f = ext! (Quot-elim-prop (Quot-rec-β _ _))
 
     QuotAlgebra-hom-≃ :
@@ -334,11 +331,13 @@ module _
       (∀ x y (r : R x y) → (fst (fst p)) x ＝ (fst (fst p)) y)
     ≃ LatticeAlgHom A/R A'
   QuotAlgebra-⟪⟫-hom-≃ =
-    Σ-snd-≃ (λ a → equiv←logical
-                   (is-prop←is-truncated trunc!)
-                   (is-prop←is-truncated trunc!)
-                   ((pres-⟪⟫ _ _ _ _ (un-is-lattice-alg-hom (a .snd)))
-            , λ p x y r → p x y (Trunc.η (⟪⟫-inc r))))
+    Σ-snd-≃
+      (λ a
+        → equiv←logical
+            is-prop!
+            is-prop!
+            ( (pres-⟪⟫ _ _ _ _ (un-is-lattice-alg-hom (a .snd)))
+            , (λ p x y r → p x y (Trunc.η (⟪⟫-inc r)))))
     ∙e QuotAlgebra-hom-≃ A ⟪ R ⟫ A'
 }
 }

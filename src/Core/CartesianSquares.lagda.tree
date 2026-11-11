@@ -557,7 +557,7 @@ opaque
     eq = (3-for-2~
             {f = curry-pb}
             {g = gap-square (Π-square F)}
-            {k = postcomp-Π (λ i → gap-square (F i))}
+            {k = postcomp-Π (gap-square ∘ F)}
             (htpy)
             (is-equiv←qinv curry-pb-qinv)
             (postcomp-Π-equiv
@@ -578,7 +578,7 @@ square
 
 \quiver{
 \begin{tikzcd}
-\Sigma1{a : A}{P(f(a))} && Sigma1{b : B}{P(b)} \\
+\Sigma1{a : A}{P(f(a))} && \Sigma1{b : B}{P(b)} \\
 \\
 A && B
 \arrow[from=1-1, to=1-3]

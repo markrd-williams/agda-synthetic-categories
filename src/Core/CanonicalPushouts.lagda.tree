@@ -158,6 +158,25 @@ cogap = pushout-rec
 }
 }
 
+\subtree[wil-0003]{
+\title{Glue naturality}
+\taxon{Lemma}
+\author{markwilliams}
+\date{2026-11-11}
+
+\p{We have a naturality square for paths in the apex of a pushout.}
+\agda{
+
+glue-nat : ∀ {𝓤 𝓥 𝓦} {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} {f : A → B} {g : A → C}
+  → {a a' : A}
+  → (p : a ＝ a')
+  → glue a ∙ ap ι₂ (ap f p) ＝ ap ι₁ (ap g p) ∙ glue a'
+glue-nat refl = ∙-reflr (glue _)
+
+}
+
+}
+
 \subtree[stt-0147]{
 \title{Slice maps between cogap maps from maps of cocones}
 \taxon{Lemma}

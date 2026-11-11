@@ -76,6 +76,7 @@
 % Relations
 \def\defeq{\coloneqq} % :=
 \def\toeq{\xrightarrow{\sim}}
+\def\to-s{\to^{\mathrm{s}}}
 
 % Blackboard bold glyphs
 \def\b1{#{\mathbb{1}}}
@@ -86,7 +87,7 @@
 \def\bN{#{\mathbb{N}}}
 
 % Empty type
-\def\Empty{#{\mathsf{Empty}}}
+\def\empty{#{\mathbb{0}}}
 
 % Booleans
 \def\Bool{#{\mathrm{Bool}}}
@@ -149,7 +150,9 @@
 \def\Gl{\operatorname{Gl}}
 
 \def\lhtpy{\sim_{\Delta}}
+\def\LHtpy{{{}_\sim\Delta}}
 \def\rhtpy{\mathrel{{}_{\Delta}{\sim}}}
+\def\RHtpy{{\Delta_\sim}}
 
 \def\FreeCov{\operatorname{L^{\rm{l}}}}
 
