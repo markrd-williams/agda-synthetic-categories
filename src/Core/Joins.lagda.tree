@@ -214,6 +214,27 @@ f *₁ g = pushout-rec (mk-cocone (ι₁ ∘ f) (ι₂ ∘ g) (glue ∘ (f ×₁
 *₁-~l H =  pushout-rec-unique _ _ (ι₁ ◃h H) ~refl λ where
   x@(a , b) →  ∙-reflr _ ∙  pushout-rec-apβ x ∙ *-eq-left (H a)
 
+*₁-~
+  : ∀ {𝓤 𝓜 𝓥 𝓦} {A : Type 𝓤} {A' : Type 𝓜}
+      {B : Type 𝓥} {B' : Type 𝓦}
+    → {f1 f2 : A → A'} {g1 g2 : B → B'}
+    → f1 ~ f2
+    → g1 ~ g2
+    → f1 *₁ g1 ~ f2 *₁ g2
+*₁-~ {f1 = f1} {f2} {g1} {g2} H K = pushout-rec-unique _ _ (ι₁ ◃h H) (ι₂ ◃h K) λ
+  { x@(a , b) →  ap (_∙ ap ι₂ (K b)) (pushout-rec-apβ x)
+    ∙   ap (λ - → glue (f1 a , g1 b) ∙ ap ι₂ -) (sym ×-path-ap-snd)
+    ∙  h (×-path→ (H a , K b))
+    ∙ ap (λ - → ap ι₁ - ∙ (glue (f2 a , g2 b))) ×-path-ap-fst }
+  where
+    -- todo move
+    h
+     : ∀ {𝓤 𝓥 𝓦} {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} {f : A → B} {g : A → C}
+     → {a a' : A}
+     → (p : a ＝ a')
+     → glue a ∙ ap ι₂ (ap f p) ＝ ap ι₁ (ap g p) ∙ glue a'
+    h refl = ∙-reflr (glue _)
+
 *₁-∘
   : ∀ {𝓤 𝓜 𝓛 𝓥 𝓦 𝓚} {A : Type 𝓤} {A' : Type 𝓜} {A'' : Type 𝓛}
       {B : Type 𝓥} {B' : Type 𝓦} {B'' : Type 𝓚}
@@ -308,6 +329,24 @@ f *₁ g = pushout-rec (mk-cocone (ι₁ ∘ f) (ι₂ ∘ g) (glue ∘ (f ×₁
     → A ≃ C → B ≃ D → A * B ≃ C * D
 *-≃ (mk≃ l le) (mk≃ r re)
   = mk≃ (l *₁ r) (*₁-is-equiv le re)
+
+pushout-rec-η
+  : ∀ {𝓤 𝓥 𝓦} {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} {f : A → B} {g : A → C}
+  → pushout-rec (mk-cocone (ι₁ {f = f} {g = g}) ι₂ glue) ~ id
+pushout-rec-η =
+  pushout-ind _
+    (mk-coconeᵈ ~refl ~refl
+       λ a → Idᵈ-func←Square (glue a) refl refl (mk-square ( ∙-reflr _ ∙ pushout-rec-apβ a ∙ sym (ap-id _) )))
+
+
+tr-* : ∀ {𝓘 𝓤 𝓥}
+       {I : Type 𝓘}
+       {A : I → Type 𝓤}
+       {B : I → Type 𝓥}
+       {i j : I}
+       (p : i ＝ j)
+     → tr (λ i → A i * B i) p ~ (tr A p) *₁ (tr B p)
+tr-* refl a = sym (pushout-rec-η a)
 }
 }
 

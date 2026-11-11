@@ -30,7 +30,9 @@ open import Foundations.Prelude
     {x y : Σ A B}
    → (p : x ＝Σ y)
    → total-map f x ＝Σ total-map f y
-＝Σ-ap-total-map f (refl , refl) = refl , refl
+＝Σ-ap-total-map {B' = B'} f {(a , b)} {(a' , b')} (p , q) .fst = p
+＝Σ-ap-total-map {B' = B'} f {(a , b)} {(a' , b')} (p , q) .snd =
+  ap (tr B' p ∘ f a) (Idᶠ-right q) ∙ sym (happly (tr-→ p (f a)) b') ∙ happly (apᶠ f p) b'
 
 
 Σ-path→-ap-total-map :

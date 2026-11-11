@@ -197,7 +197,7 @@ pre-post-comp {p = refl} = refl
 coe∙coe
   : ∀ {𝓤} {A B C : Type 𝓤} (P : A ＝ B) (Q : B ＝ C) (a : A)
     → coe Q (coe P a) ＝ coe (P ∙ Q) a
-coe∙coe refl refl a = refl
+coe∙coe P refl a =  ap (λ - → coe - a) (sym (∙-reflr _))
 
 coe-sym
   : ∀ {𝓤} {A B : Type 𝓤} (P : B ＝ A) {a : A}

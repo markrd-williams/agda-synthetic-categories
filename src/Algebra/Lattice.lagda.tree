@@ -61,8 +61,7 @@ record is-lattice
   ∧-idem : {x : L} → x ∧ x ＝ x
   ∧-idem {x}
     = x ∧ x             ＝⟨ ap (x ∧_) (sym ∨-∧-abs) ⟩
-      x ∧ (x ∨ (x ∧ x)) ＝⟨ ∧-∨-abs ⟩
-      x ∎
+      x ∧ (x ∨ (x ∧ x)) ＝⟨⟩ ∧-∨-abs
 
   ∨-idem : {x : L} → x ∨ x ＝ x
   ∨-idem {x}

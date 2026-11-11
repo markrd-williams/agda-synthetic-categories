@@ -204,7 +204,7 @@ module _ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥} where
       {x : B a} {y : B b} {z : B c}
     → Idᶠ B p x y → Idᶠ B q y z
     → Idᶠ B (p ∙ q) x z
-  transIdᶠ refl refl h k = h ∙ k
+  transIdᶠ refl q h k =  ap (tr B q) h ∙ k
 
 module _ {𝓤} {A : Type 𝓤} where
 

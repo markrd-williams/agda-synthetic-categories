@@ -173,6 +173,17 @@ tr-→-codomain
   : ∀ {𝓤 𝓥} {A : Type 𝓤} {B B' : Type 𝓥} (p : B ＝ B') (f : A → B)
     → tr (λ Y → A → Y) p f ＝ coe p ∘ f
 tr-→-codomain refl f = refl
+
+tr-→-domain-fam
+  : ∀ {𝓘 𝓤 𝓥} {I : Type 𝓘} {A : I → Type 𝓤} {B : Type 𝓥} {i j : I} (p : i ＝ j) (f : A i → B)
+  → tr (λ i → A i → B) p f ＝ f ∘  tr A (sym p)
+tr-→-domain-fam {A = A} refl f = refl
+
+tr-→
+  : ∀ {𝓘 𝓤 𝓥} {I : Type 𝓘} {A : I → Type 𝓤} {B : I → Type 𝓥} {i j : I} (p : i ＝ j) (f : A i → B i)
+  → tr (λ i → A i → B i) p f ＝ tr B p ∘ f ∘ tr A (sym p)
+tr-→ refl f = refl
+
 }
 }
 
