@@ -1,9 +1,13 @@
 \date{2026-10-13}
-\title{Sierpinski Completeness}
+\title{Sierpiński Completeness}
 \taxon{Module}
 \author{markwilliams}
 \import{stt-macros}
 
+\p{
+Based on work in progress by [Bakke](fredrikbakke), [Sterling](jonsterling), [Damuni Williams](markwilliams) and [Ye](lingyuanye),
+revising a proof in the unpublished manuscript [The Synthetic Sierpiński Cone](https://arxiv.org/abs/2605.00773).
+}
 
 \agda{
 {-# OPTIONS --lossy-unification #-}
@@ -231,7 +235,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
          (λ x → pushout-ind _
            (mk-coconeᵈ
              (λ p → funext→ λ q → ¡ (h (sym p ∙ ϕ' q)))
-             (λ p → funext→ λ q → sym (ap₂ (_∙_) (∙-reflr _ ∙ ap-const _) refl))
+             (λ p → funext→ λ q →  sym (ap (_∙ _) (∙-reflr _ ∙ ap-const _)))
              λ {(p , _) → help funext≃ _ _ (funext→ (λ q → ¡ (h (sym p ∙ ϕ' q))))}))
          λ { (p , x) → funext→ (pushout-ind _
            (mk-coconeᵈ
@@ -313,19 +317,19 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
 
   top-Σ-path : ∀ i x →  ε̄̃ i (g (i , x) .snd)  ＝Σ (( i , x ))
   top-Σ-path i x .fst = ∧-idem
-  top-Σ-path i x .snd = Idᶠ-inr (*₁-htpy (λ _ → prop!) (λ _ → (sym (tr-const _))) x ∙ sym (tr-* (sym ∧-idem) x))
+  top-Σ-path i x .snd = Idᶠ-inr (*₁-htpy (λ _ → prop!) (λ _ → (sym (tr-const (sym ∧-idem)))) x ∙ sym (tr-* (sym ∧-idem) x))
 
-  top : ∀ i x →  ε̄̃ i (g (i , x) .snd) ＝ (i , x)
-  top i x = Σ-path→ (top-Σ-path i x)
+  top : (x : Scn X) →  ε̄̃ (x .fst) (g x .snd) ＝ x
+  top x = Σ-path→ (top-Σ-path (x .fst) (x .snd))
 
-  bot : ∀ i x → ε i (g' (i , x) .snd) ＝ (i , x)
-  bot i x = Σ-path→ (∧-idem , Idᶠ-inr (sym (tr-→-domain-fam (sym ∧-idem) x ∙ ap (x ∘_) prop!)))
+  bot : (x : Lᵒ X) → ε (x .fst) (g' x .snd) ＝ x
+  bot x = Σ-path→ (∧-idem , Idᶠ-inr (sym (tr-→-domain-fam (sym ∧-idem) (x .snd) ∙ ap ((x .snd) ∘_) prop!)))
 
   sierpinski-retract : Arrow-map-path (paste-squares right-square left-square) id-square
-  sierpinski-retract .fst = uncurry top
-  sierpinski-retract .snd .fst = uncurry bot
+  sierpinski-retract .fst = top
+  sierpinski-retract .snd .fst = bot
   sierpinski-retract .snd .snd  =
-     (K ▹h g) ∙h (σ X ◃h uncurry top)   ~⟨ (~refl: K ∘ g) ⟩∙h⟨ uncurry (λ i x → Σ-path→-ap-total-map (σ-part X) (∧-idem , _)) ⟩
+     (K ▹h g) ∙h (σ X ◃h  top)   ~⟨ (~refl: K ∘ g) ⟩∙h⟨ uncurry (λ i x → Σ-path→-ap-total-map (σ-part X) (∧-idem , _)) ⟩
      (K ▹h g) ∙h (λ a → Σ-path→ (＝Σ-ap-total-map (σ-part X) (∧-idem , top-Σ-path (a .fst) (a .snd) .snd))) ~⟨
        (λ where
          (i , x) → sym (Σ-path→-∙ _ _)
@@ -344,8 +348,8 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
                                    prop!)) ∎)
                             )))
        ⟩
-     uncurry bot ∘ σ X ~⟨  ~sym (∙h-reflr _) ⟩
-     (uncurry bot ∘ (σ X)) ∙h ~refl ~∎
+     bot ∘ σ X ~⟨  ~sym (∙h-reflr _) ⟩
+     (bot ∘ (σ X)) ∙h ~refl ~∎
     where
       K = right-square .Arrow-Π.comm
 }
