@@ -105,13 +105,13 @@ module EasyMode (h : ¬ (i0 ＝ i1)) where
           (mk-coconeᵈ
             (λ y → glue (y , x))
             (λ q → refl)
-            λ { (y , q) →
-              ap (λ - → coe - (glue (y , x))) (ap-∘ (_＝ ι₂ x) _ (glue (y , q)))
-              ∙ ap (λ - → coe (ap (_＝ ι₂ x) -) _) (pushout-rec-apβ _)
-              ∙ ap-lem-1 _ (glue (y , x)) ∙ ∙-sym' (glue (y , x)) }))
+            λ a → Idᵈ-func←Square _ _ _
+              (Square-paste-horizontal
+                (Square-degen-hor _ _ (pushout-rec-apβ _))
+                (mk-square (ap (_ ∙_) (sym (ap-const _)))))))
         λ {(p , x) → funext→ (pushout-ind _
            (mk-coconeᵈ
-             (λ y → {!!} )
+             ({! (λ z → (y : Y * (i ＝ i1)) → (id *₁ σ-part X i z) y ＝ (τ-part Y i y *₁ id) z) ◃h glue !} )
              (λ q → ¡ (h (sym p ∙ q)))
              λ {(y , q) → ¡ (h (sym p ∙ q)) })) })
 
