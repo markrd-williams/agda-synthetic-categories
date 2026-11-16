@@ -171,8 +171,10 @@ glue-nat : ∀ {𝓤 𝓥 𝓦} {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} 
   → {a a' : A}
   → (p : a ＝ a')
   → glue a ∙ ap ι₂ (ap f p) ＝ ap ι₁ (ap g p) ∙ glue a'
-glue-nat refl = ∙-reflr (glue _)
-
+glue-nat {f = f} {g} {a} {a'}  p = 
+  ap (glue _ ∙_) (sym (ap-∘ ι₂ f p))
+  ∙ homotopy-natural glue p
+  ∙ ap (_∙ glue _) (ap-∘ ι₁ g p)
 }
 
 }

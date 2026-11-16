@@ -57,13 +57,6 @@ Scn₁ : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} (f : X → Y)
         → Scn X → Scn Y
 Scn₁ f (i , x) = i , (id *₁ f) x
 
-ap-lem-1 : ∀ {𝓤} {X : Type 𝓤}
-         → {x1 x2 x3 : X}
-         → (p : x1 ＝ x2)
-         → (q : x1 ＝ x3)
-         → coe (ap (_＝ x3) p) q ＝ sym p ∙ q
-ap-lem-1 refl q = refl
-
 module EasyMode (h : ¬ (i0 ＝ i1)) where
   σ-part-Cocone : ∀ {𝓤} (X : Type 𝓤) (i : Δ¹)
     → Cocone (mk-span ((i ＝ i0) × X) (λ r → fst r) (λ r → snd r)) (i ＝ i1 → X)
@@ -145,7 +138,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
   H-path i x j p = (χ *₁ σ-part X i x) p ＝⟨ sym (*₁-∘ _ _ _ _ p) ⟩
          ((χ *₁ id) ∘ (id *₁ σ-part X i x)) p ＝⟨ ap (χ *₁ id) (Sierpinski-interchange X (j ＝ i0) i x p) ⟩
          ((χ *₁ id) ∘ (τ-part (j ＝ i0) i p) *₁ id) x ＝⟨ *₁-∘ _ _ _ _ x ⟩
-         ((χ ∘ (τ-part (j ＝ i0) i p)) *₁ id) x ＝⟨⟩  *₁-htpy (λ _ → carrier-is-set _ _ _ _) ~refl x
+         ((χ ∘ (τ-part (j ＝ i0) i p)) *₁ id) x ＝⟨⟩  *₁-htpy (λ _ → prop!) ~refl x
 
   H : (i : Δ¹)
       → ε̄ i ∘ (σ-part X i ×₁ id) ~ ε̃ i ∘ id ×₁ σ (i ＝ i1)
@@ -176,15 +169,16 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
   σ-part-nat : ∀ {𝓤} {i j : Δ¹} {A : Type 𝓤}
              → (f : (j ＝ i1) → (i ＝ i1))
              → (g : (i ＝ i0) → (j ＝ i0))
-             → (p : j ＝ i1)
              → (a : (i ＝ i0) * A)
-             → ((_∘ f) ∘ (σ-part A i)) a p  ＝  (σ-part A j ∘ (g *₁ id)) a p
-  σ-part-nat {i = i} {j} {A} f g q =
-    pushout-ind _
+             → (p : j ＝ i1)
+             → ((_∘ f) ∘ (σ-part A i)) a p  ＝ (σ-part A j ∘ (g *₁ id)) a p
+  σ-part-nat {i = i} {j} {A} f g a q =
+    pushout-ind (λ z → ((_∘ f) ∘ σ-part A i) z q ＝ (σ-part A j ∘ (g *₁ id)) z q)
       (mk-coconeᵈ
         (λ p → ¡ (h (sym p ∙ f q )))
         (λ _ → refl)
-        λ { (p , x) → ¡ (h (sym p ∙ f q)) })
+        λ { (p , x) → ¡ (h (sym p ∙ f q)) }) a
+
 
   ε : (i : Δ¹) → ((i ＝ i1 → X) × Lᵒ (i ＝ i1)) → Lᵒ X
   ε i (x , j , p) .fst = i ∧ j
@@ -192,10 +186,14 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
 
 
   f-path : ∀ i →  (x : i ＝ i1 → X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1)) → x ∘ ϕ  ＝ σ-part X (i ∧ j) ((χ *₁ x) p)
-  f-path i x j p = funext→ λ a →
-           ap x (carrier-is-set _ _ _ _)
-           ∙ σ-part-nat' x ((χ *₁ id) p) a
-           ∙ happly (ap (σ-part X (i ∧ j)) (*₁-∘ _ _ _ _ p)) a
+  f-path i x j p = funext→ (
+           x ∘ ϕ
+             ~⟨  x ◃h (λ a → prop!) ⟩
+           x ∘ σ-part (i ＝ i1) (i ∧ j) ((χ *₁ id) p)
+             ~⟨ σ-part-nat' x ((χ *₁ id) p) ⟩
+           (σ-part X (i ∧ j) ∘ (id *₁ x) ∘ (χ *₁ id)) p
+             ~⟨⟩ happly ((σ-part X (i ∧ j) ◃h (*₁-∘ id x χ id)) p))
+--         (σ-part X (i ∧ j) ∘ (χ *₁ x)) p ~∎
 
   S : (i : Δ¹) → Arrow-map (pushout-product (σ-part X i) (σ (i ＝ i1)))  (σ X)
   S i .Arrow-Π.top = ε̄̃ i
@@ -213,15 +211,14 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
           ((i ∧ j) , σ-part X i x ∘ ϕ) ＝ (((i ∧ j) , σ-part X (i ∧ j) ((ψ *₁ id) x)))
       g (x , j , p) =
         Σ-path→
-          (refl
-          , funext→ λ a → σ-part-nat ϕ ψ a x)
+          (refl , funext→  (σ-part-nat ϕ ψ x))
 
       lem :
           (j  : Δ¹)
           (x  : (i ＝ i0) * X)
           (p  : (j ＝ i0) * (i ＝ i1))
-        →  (λ a → σ-part-nat ϕ ψ a x)   ＝
-              (λ a → (ap (σ-part X i x) (carrier-is-set _ _ _ _))
+        →  (σ-part-nat ϕ ψ x)   ＝
+              (λ a → (ap (σ-part X i x) prop!)
                   ∙ (σ-part-nat' (σ-part X i x) ((χ *₁ id) p) a)
                   ∙ (happly (ap (σ-part X (i ∧ j)) (*₁-∘ _ _ _ _ p)) a))
                   ∙h happly (ap (σ-part X (i ∧ j)) (H-path i x j p))
@@ -247,11 +244,8 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
           (j  : Δ¹)
           (x  : (i ＝ i0) * X)
           (p  : (j ＝ i0) * (i ＝ i1))
-        →  funext→ (λ a → σ-part-nat ϕ ψ a x)   ＝ f-path i (σ-part X i x) j p ∙ ap (σ-part X (i ∧ j)) (H-path i x j p)
-      lem' j x p =
-        ap funext→ (lem j x p)
-          ∙ funext-∙ _ (happly (ap (σ-part X (i ∧ j)) (H-path i x j p)))
-          ∙ ap₂ (_∙_) (ap funext→ refl) (funext.η _)
+        →  funext→ (σ-part-nat ϕ ψ x)   ＝ f-path i (σ-part X i x) j p ∙ ap (σ-part X (i ∧ j)) (H-path i x j p)
+      lem' j x p = ap funext→ (lem j x p) ∙  funext-∙ _ (happly (ap (σ-part X (i ∧ j)) (H-path i x j p))) ∙  ap ((f-path i (σ-part X i x) j p) ∙_) (funext.η _)
 
       C : Coconeᵈ _ _ _
       C .Coconeᵈ.p  = f
@@ -292,6 +286,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
                   f (σ-part X i x , j , p) ∙
                     Σ-path→ (refl ,  ap (σ-part X (i ∧ j)) (H-path i x j p))
 
+
                   ＝⟨  ap (f (σ-part X i x , j , p) ∙_) ( sym (ap-total-map-Σ-path-refl _ _) ) ⟩
 
                   f (σ-part X i x , j , p) ∙
@@ -305,52 +300,83 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} where
   right-square .Arrow-Π.comm x = (S (x .fst)) .Arrow-Π.comm (x .snd)
 
   g : ∀ (a : Scn X) → Σ[ i ∶ Δ¹ ] ( Pushout ((σ-part X i ×₁1 _) ) ((_ 1×₁ (σ (i ＝ i1)))))
-  g a = a .fst , ι₂ (a .snd , (a . fst , id))
+  g = total-map (λ a x → ι₂ (x , a , id))
 
   g' : ∀ (a : Lᵒ X) → Σ[ i ∶ Δ¹ ] ((i ＝ i1 → X) × Lᵒ (i ＝ i1))
-  g' a = a .fst , (a .snd) , a .fst , id
+  g' = total-map (λ a x → x , a , id)
 
   left-square : Arrow-map (σ X) (total-map (λ i → (σ-part X i) □ (σ (i ＝ i1))))
   left-square .Arrow-Π.top = g
   left-square .Arrow-Π.bot = λ a →  a .fst , (a .snd) , a .fst , id
   left-square .Arrow-Π.comm = λ _ → refl
 
-  top-Σ-path : ∀ i x →  ε̄̃ i (g (i , x) .snd)  ＝Σ (( i , x ))
-  top-Σ-path i x .fst = ∧-idem
-  top-Σ-path i x .snd = Idᶠ-inr (*₁-htpy (λ _ → prop!) (λ _ → (sym (tr-const (sym ∧-idem)))) x ∙ sym (tr-* (sym ∧-idem) x))
+  Idᶠ-∘-prop
+    : ∀ {𝓤} {i j : Δ¹} {Y : Type 𝓤}
+    → (p : j ＝ i)
+    → (f : j ＝ i1 → i ＝ i1)
+    → (h : i ＝ i1 → Y)
+    → Idᶠ _ p (h ∘ f) h
+  Idᶠ-∘-prop refl f h =  ap (h ∘_) prop!
 
-  top : (x : Scn X) →  ε̄̃ (x .fst) (g x .snd) ＝ x
-  top x = Σ-path→ (top-Σ-path (x .fst) (x .snd))
+  Idᶠ-*-prop
+    : ∀ {i j : Δ¹}
+    → (p : j ＝ i)
+    → (g : i ＝ i0 → j ＝ i0)
+    → (x : (i ＝ i0) * X)
+    → Idᶠ _ p (((g *₁ id) x)) x
+  Idᶠ-*-prop {i} refl g x = *₁-htpy (λ _ → prop!) ~refl x ∙  (*₁-id h⁻¹) x
+
+  Path-Idᶠ-σ-nat
+    : ∀ {i j : Δ¹}
+    → (p : j ＝ i)
+    → (f : j ＝ i1 → i ＝ i1)
+    → (g : i ＝ i0 → j ＝ i0)
+    → (x : (i ＝ i0) * X)
+    →  transIdᶠ refl p (funext→ (σ-part-nat f g x)) (happlyᶠ p (σ-part X j) (σ-part X i) (apᶠ (σ-part X) p) (Idᶠ-*-prop p g x)) ＝ Idᶠ-∘-prop p f (σ-part X i x)
+  Path-Idᶠ-σ-nat {i} {j} refl f g x =
+    ap (_∙ _) ( ap-id (funext→ (σ-part-nat f g x)))
+    ∙ ( (funext→ (σ-part-nat f g x)) ∙ ( ap (σ-part X i) ( *₁-htpy (λ _ → prop!) ~refl x ∙  (*₁-id h⁻¹) x ) )
+      ＝⟨ {!!} ⟩
+        ap ((σ-part X i x) ∘_) prop!  ∎ )
+
+  lem2
+    : ∀ {i : Δ¹}
+    → (f : i ＝ i1 → i ＝ i1)
+    → (g : i ＝ i0 → i ＝ i0)
+    → (x : (i ＝ i0) * X)
+    → (funext→ (σ-part-nat f g x)) ∙ ( ap (σ-part X i) ( *₁-htpy (λ _ → prop!) ~refl x ∙  (*₁-id h⁻¹) x ))
+               ＝ (ap ((σ-part X i x) ∘_) prop!)
+  lem2 f g =  pushout-ind _ (mk-coconeᵈ (λ l → {!!}) (λ r → {!!}) λ a → {!!})
+
+  Path-Idᶠ-σ-nat-id
+    : ∀ {i : Δ¹}
+    → (x : (i ＝ i0) * X)
+    → σ-part-nat id id x ＝ happly (((σ-part X i) ◃h (*₁-id)) x)
+  Path-Idᶠ-σ-nat-id {i}  = pushout-ind _ (mk-coconeᵈ (λ p → funext→ (λ q → ¡ (h (sym p ∙ q)))) ~refl λ (p , x) → help funext≃ _ _ (funext→ (λ q → ¡ (h (sym p ∙ q)))))
+
+  top : uncurry ε̄̃  ∘ g ~ id
+  top = Σ-path→ ∘ uncurry (λ i x → ∧-idem ,  Idᶠ-*-prop ∧-idem ψ x)
 
   bot : (x : Lᵒ X) → ε (x .fst) (g' x .snd) ＝ x
-  bot x = Σ-path→ (∧-idem , Idᶠ-inr (sym (tr-→-domain-fam (sym ∧-idem) (x .snd) ∙ ap ((x .snd) ∘_) prop!)))
+  bot = Σ-path→ ∘ uncurry λ i x → ∧-idem , (Idᶠ-∘-prop ∧-idem (λ z → ϕ z) x)
 
   sierpinski-retract : Arrow-map-path (paste-squares right-square left-square) id-square
   sierpinski-retract .fst = top
   sierpinski-retract .snd .fst = bot
   sierpinski-retract .snd .snd  =
      (K ▹h g) ∙h (σ X ◃h  top)   ~⟨ (~refl: K ∘ g) ⟩∙h⟨ uncurry (λ i x → Σ-path→-ap-total-map (σ-part X) (∧-idem , _)) ⟩
-     (K ▹h g) ∙h (λ a → Σ-path→ (＝Σ-ap-total-map (σ-part X) (∧-idem , top-Σ-path (a .fst) (a .snd) .snd))) ~⟨
+     (K ▹h g) ∙h (λ a →
+                    Σ-path→
+                     (＝Σ-ap-total-map (σ-part X)
+                      (∧-idem , Idᶠ-*-prop ∧-idem ψ (a .snd)))) ~⟨
        (λ where
          (i , x) → sym (Σ-path→-∙ _ _)
-                 ∙ (Id-IdΣ→ (＝Σ-∙ (refl , _) _) _ (refl ,
-                            ( ap (tr (λ - → - ＝ i1 → X) ∧-idem)
-                                 (funext→ (λ a → σ-part-nat ϕ ψ a x))
-                            ∙ ap (tr (λ - → - ＝ i1 → X) ∧-idem ∘ σ-part X (i ∧ i))
-                                 (Idᶠ-right (top-Σ-path i x .snd))
-                            ∙ sym (happly (tr-→ ∧-idem (σ-part X (i ∧ i))) x)
-                            ∙ happly (apᶠ (σ-part X) ∧-idem) x
-                              ＝⟨ {! !} ⟩
-                                Idᶠ-inr
-                                 (sym
-                                  (tr-→-domain-fam (sym ∧-idem) (σ-part X i x) ∙
-                                   ap (σ-part X i x ∘_)
-                                   prop!)) ∎)
-                            )))
+                 ∙ (Id-IdΣ→ (＝Σ-∙ (refl , _) _) _ (refl , Path-Idᶠ-σ-nat ∧-idem ϕ ψ x)
+                            ))
        ⟩
      bot ∘ σ X ~⟨  ~sym (∙h-reflr _) ⟩
      (bot ∘ (σ X)) ∙h ~refl ~∎
     where
       K = right-square .Arrow-Π.comm
-}
+
 }

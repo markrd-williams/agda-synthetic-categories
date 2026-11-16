@@ -74,7 +74,16 @@ module _ {𝓤 𝓥} {A : Type 𝓤} {B C : A → Type 𝓥}   where
       → f ~[ happly P ] g
   happlyᵈ {P = refl} p = happly p
 
-
+module _ {𝓤 𝓥} {A : Type 𝓤} {B C : A → Type 𝓥} where
+  happlyᶠ
+    : ∀ {a a'} (p : a ＝ a')
+    → (f : B a → C a)
+    → (g : B a' → C a')
+    → Idᶠ (λ a → B a → C a) p f g
+    → {b : B a} {b' : B a'}
+    → Idᶠ B p b b'
+    → Idᶠ C p (f b) (g b')
+  happlyᶠ refl f g H {b} q =  happly H b ∙ ap g q
 
 _◂ᵈ_
   : ∀ {𝓤 𝓥 𝓦} {A : Type 𝓤} {B : A → Type 𝓥} {C : ∀ {a} → B a → Type 𝓦}

@@ -198,9 +198,9 @@ f *₁ g = pushout-rec (mk-cocone (ι₁ ∘ f) (ι₂ ∘ g) (glue ∘ (f ×₁
     → f ~ f' → g ~ g' → (f *₁ g) ~ (f' *₁ g')
 *₁-htpy {f = f} {f'} {g} {g'} H K =
     cogap-unique _ id _ (ι₁ ◃h H) (ι₂ ◃h K)
-     (  (id◃h (glue ∘ f ×₁ g) ⟩∙h⟨  ι₂ ⟩◃h⟨ λ _ → sym ×-path-ap-snd)
-     ∙h (λ a → glue-nat (×-path→ (H (a .fst) , K (a .snd))))
-     ∙h ( (ι₁ ⟩◃h⟨ λ a → ×-path-ap-fst) ⟩∙h⟨ (~refl: glue ∘ f' ×₁ g')))
+     ((id◃h (glue ∘ f ×₁ g) ⟩∙h⟨  ι₂ ⟩◃h⟨ λ _ → sym ×-path-ap-snd)
+     ∙h (λ a → glue-nat (×-path→ (H (fst a) , K (snd a))))
+     ∙h ((ι₁ ⟩◃h⟨ λ a → ×-path-ap-fst) ⟩∙h⟨ (~refl: glue ∘ f' ×₁ g') ))
 
 join-map-section
   : ∀ {𝓤 𝓜 𝓥 𝓦} {A : Type 𝓤} {A' : Type 𝓜} {B : Type 𝓥} {B' : Type 𝓦}
@@ -238,14 +238,6 @@ module _
 *-≃ (mk≃ l le) (mk≃ r re)
   = mk≃ (l *₁ r) (*₁-is-equiv le re)
 
-pushout-rec-η
-  : ∀ {𝓤 𝓥 𝓦} {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} {f : A → B} {g : A → C}
-  → pushout-rec (mk-cocone (ι₁ {f = f} {g = g}) ι₂ glue) ~ id
-pushout-rec-η =
-  pushout-ind _
-    (mk-coconeᵈ ~refl ~refl
-       λ a → Idᵈ-func←Square (glue a) refl refl (mk-square ( ∙-reflr _ ∙ pushout-rec-apβ a ∙ sym (ap-id _) )))
-
 tr-* : ∀ {𝓘 𝓤 𝓥}
        {I : Type 𝓘}
        {A : I → Type 𝓤}
@@ -253,7 +245,7 @@ tr-* : ∀ {𝓘 𝓤 𝓥}
        {i j : I}
        (p : i ＝ j)
      → tr (λ i → A i * B i) p ~ (tr A p) *₁ (tr B p)
-tr-* refl a = sym (pushout-rec-η a)
+tr-* refl = pushout-rec-unique _ _ ~refl ~refl (∙h-reflr (id ◃h glue) ∙h id◃h glue)
 
 *-retract
   : ∀ {𝓤 𝓥 𝓦 𝓜} {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} {D : Type 𝓜}
