@@ -256,6 +256,106 @@ module WithCoStrictMeet
     → x ∘ ϕ ＝ X.σ-part (i ∧ j) ((χ *₁ x) p)
   f-path i x j = funext→ ∘ f-htpy i x j
 
+  S : (i : Δ¹) → Arrow-map (pushout-product (X.σ-part i) D.σ) X.σ
+  S i .Arrow-Π.top = ε̄̃ i
+  S i .Arrow-Π.bot = ε i
+  S i .Arrow-Π.comm = pushout-ind _ C
+    where
+      f : ((x , j , p) : (i ＝ i1 → X) × Scn (i ＝ i1))
+        → (i ∧ j , (x ∘ ϕ)) ＝ ((i ∧ j) , X.σ-part (i ∧ j) ((χ *₁ x) p))
+      f (x , j , p) = Σ-path→ (refl , f-path i x j p)
+
+      g : ((x , j , p) : ((i ＝ i0) * X) × Lᵒ (i ＝ i1))
+        → ((i ∧ j) , X.σ-part i x ∘ ϕ) ＝ (((i ∧ j) , X.σ-part (i ∧ j) ((ψ *₁ id) x)))
+      g (x , j , p) = Σ-path→ (refl , funext→ (X.σ-part-nat ϕ ψ x))
+
+      lem
+        : (j : Δ¹)
+          (x : (i ＝ i0) * X)
+          (p : (j ＝ i0) * (i ＝ i1))
+        → X.σ-part-nat ϕ ψ x
+        ＝ f-htpy i (X.σ-part i x) j p
+        ∙h happly (ap (X.σ-part (i ∧ j)) (H-path i x j p))
+      lem j = pushout-ind _
+        (mk-coconeᵈ
+          (λ p _ → funext→ (λ r → is-truncated←is-single
+            (X.is-single←i=1←i=0 p (ϕ r)) {n = 0𝕋} _ _ _ _))
+          (λ x → pushout-ind _
+            (mk-coconeᵈ
+              (λ p → funext→ (λ q → is-truncated←is-single
+                (X.is-single←i=1←i=0 p (ϕ' q)) {n = 0𝕋} _ _ _ _))
+              (λ p → funext→ (λ q → sym (ap (_∙ _) (∙-reflr _ ∙ ap-const _))))
+              (λ (p , _) → Π-is-set (λ q → is-truncated←is-single
+                (X.is-single←i=1←i=0 p (ϕ' q)) {n = 1𝕋} _ _) _ _ _ _)))
+          (λ (p , _) → Π-is-prop
+            (λ _ → Π-is-set (λ r → is-truncated←is-single
+              (X.is-single←i=1←i=0 p (ϕ r)) {n = 1𝕋} _ _) _ _) _ _))
+
+      lem'
+        : (j : Δ¹)
+          (x : (i ＝ i0) * X)
+          (p : (j ＝ i0) * (i ＝ i1))
+        → funext→ (X.σ-part-nat ϕ ψ x)
+        ＝ f-path i (X.σ-part i x) j p ∙ ap (X.σ-part (i ∧ j)) (H-path i x j p)
+      lem' j x p
+        = ap funext→ (lem j x p)
+        ∙ funext-∙ _ (happly (ap (X.σ-part (i ∧ j)) (H-path i x j p)))
+        ∙ ap ((f-path i (X.σ-part i x) j p) ∙_) (funext.η _)
+
+      C : Coconeᵈ
+            (mk-span
+              (((i ＝ i0) * X) × Scn (i ＝ i1))
+              (X.σ-part i ×₁1 Scn (i ＝ i1))
+              (((i ＝ i0) * X) 1×₁ D.σ))
+            pushout
+            _
+      C .Coconeᵈ.p = f
+      C .Coconeᵈ.q = g
+      C .Coconeᵈ.filler (x , j , p)
+        = Idᵈ-func←Square
+              {f = (ε i ∘ (pushout-product (X.σ-part i) D.σ))}
+              {g = (X.σ ∘ ε̄̃ i)}
+              (glue (x , j , p))
+              (f (X.σ-part i x , j , p))
+              (g (x , j , D.σ-part j p))
+              (mk-square
+                ( ((ε i ∘ (X.σ-part i □ D.σ)) ◃h glue) (x , j , p)
+                ∙ g (x , j , D.σ-part j p)
+
+                ＝⟨ ap
+                    (_∙ g (x , j , D.σ-part j p))
+                    (cogap-◃h-glue _ (ε i) (x , j , p)) ⟩
+
+                (ε i ◃h Product-hom (X.σ-part i) D.σ .Arrow-Π.comm) (x , j , p)
+                ∙ g (x , j , D.σ-part j p)
+
+                ＝⟨ ∙-refll _ ⟩
+
+                g (x , j , D.σ-part j p)
+
+                ＝⟨ Id-IdΣ→ _ _
+                      (refl
+                      , lem' j x p
+                      ∙ ap (_∙ ap (X.σ-part (i ∧ j)) (H-path i x j p)) (sym (ap-id _)))
+                  ⟩
+
+                Σ-path→ (＝Σ-∙ (refl , f-path i (X.σ-part i x) j p) (refl , ap (X.σ-part (i ∧ j)) (H-path i x j p)))
+
+                ＝⟨ Σ-path→-∙ (refl , f-path i (X.σ-part i x) j p) (refl , ap (X.σ-part (i ∧ j)) (H-path i x j p)) ⟩
+
+                f (X.σ-part i x , j , p)
+                ∙ Σ-path→ (refl , ap (X.σ-part (i ∧ j)) (H-path i x j p))
+
+
+                ＝⟨ ap (f (X.σ-part i x , j , p) ∙_) (sym (ap-total-map-Σ-path-refl _ _)) ⟩
+
+                f (X.σ-part i x , j , p)
+                ∙ ap X.σ (H i (x , j , p))
+
+                ＝⟨⟩
+
+                ap (f (X.σ-part i x , j , p) ∙_) (sym (cogap-◃h-glue _ X.σ (x , j , p)))))
+
 module EasyMode
   (h : i0 ≠ i1)
   (let module M {𝓤} {X : Type 𝓤} = WithCoStrict {X = X} (¡ ∘ h))
@@ -270,107 +370,8 @@ module _
   (let module D {i j : Δ¹} = WithCoStrict (Δ¹-＝-is-co-strict {i} {j}))
   where
 
-  S : (i : Δ¹) → Arrow-map (pushout-product (σ-part i) D.σ) σ
-  S i .Arrow-Π.top = ε̄̃ i
-  S i .Arrow-Π.bot = ε i
-  S i .Arrow-Π.comm = pushout-ind _ C
-    where
-      f : ((x , j , p) : (i ＝ i1 → X) × Scn (i ＝ i1))
-        → (i ∧ j , (x ∘ ϕ)) ＝ ((i ∧ j) , σ-part (i ∧ j) ((χ *₁ x) p))
-      f (x , j , p) = Σ-path→ (refl , f-path i x j p)
-
-      g : ((x , j , p) : ((i ＝ i0) * X) × Lᵒ (i ＝ i1))
-        → ((i ∧ j) , σ-part i x ∘ ϕ) ＝ (((i ∧ j) , σ-part (i ∧ j) ((ψ *₁ id) x)))
-      g (x , j , p) = Σ-path→ (refl , funext→ (σ-part-nat ϕ ψ x))
-
-      lem
-        : (j : Δ¹)
-          (x : (i ＝ i0) * X)
-          (p : (j ＝ i0) * (i ＝ i1))
-        → σ-part-nat ϕ ψ x
-        ＝ ( λ a
-          → (ap (σ-part i x) prop!)
-          ∙ (σ-part-nat' Δ¹-＝-is-co-strict (¡ ∘ h) (σ-part i x) ((χ *₁ id) p) a)
-          ∙ (happly (ap (σ-part (i ∧ j)) (*₁-∘ _ _ _ _ p)) a))
-        ∙h happly (ap (σ-part (i ∧ j)) (H-path i x j p))
-      lem j = pushout-ind _
-        (mk-coconeᵈ
-          (λ p _ → funext→ (λ r → ¡ (h (sym p ∙ ϕ r))))
-          (λ x → pushout-ind _
-            (mk-coconeᵈ
-              (λ p → funext→ (λ q → ¡ (h (sym p ∙ ϕ' q))))
-              (λ p → funext→ (λ q → sym (ap (_∙ _) (∙-reflr _ ∙ ap-const _))))
-              (λ (p , _) → Π-is-set (λ q → ¡ (h (sym p ∙ ϕ' q))) _ _ _ _)))
-          (λ (p , _) → Π-is-prop
-            (λ _ → Π-is-set (λ r → ¡ (h (sym p ∙ ϕ r))) _ _) _ _))
-
-      lem'
-        : (j : Δ¹)
-          (x : (i ＝ i0) * X)
-          (p : (j ＝ i0) * (i ＝ i1))
-        → funext→ (σ-part-nat ϕ ψ x)
-        ＝ f-path i (σ-part i x) j p ∙ ap (σ-part (i ∧ j)) (H-path i x j p)
-      lem' j x p
-        = ap funext→ (lem j x p)
-        ∙ funext-∙ _ (happly (ap (σ-part (i ∧ j)) (H-path i x j p)))
-        ∙ ap ((f-path i (σ-part i x) j p) ∙_) (funext.η _)
-
-      C : Coconeᵈ
-            (mk-span
-              (((i ＝ i0) * X) × Scn (i ＝ i1))
-              (σ-part i ×₁1 Scn (i ＝ i1))
-              (((i ＝ i0) * X) 1×₁ D.σ))
-            pushout
-            _
-      C .Coconeᵈ.p = f
-      C .Coconeᵈ.q = g
-      C .Coconeᵈ.filler (x , j , p)
-        = Idᵈ-func←Square
-              {f = ((ε i) ∘ (pushout-product (σ-part i) D.σ))}
-              {g = (σ ∘ ε̄̃ i)}
-              (glue (x , j , p))
-              (f (σ-part i x , j , p))
-              (g (x , j , D.σ-part j p))
-              (mk-square
-                ( ((ε i ∘ (σ-part i □ D.σ)) ◃h glue) (x , j , p)
-                ∙ g (x , j , D.σ-part j p)
-
-                ＝⟨ ap
-                    (_∙ g (x , j , D.σ-part j p))
-                    (cogap-◃h-glue _ (ε i) (x , j , p)) ⟩
-
-                (ε i ◃h Product-hom (σ-part i) D.σ .Arrow-Π.comm) (x , j , p)
-                ∙ g (x , j , D.σ-part j p)
-
-                ＝⟨ ∙-refll _ ⟩
-
-                g (x , j , D.σ-part j p)
-
-                ＝⟨ Id-IdΣ→ _ _
-                      (refl
-                      , lem' j x p
-                      ∙ ap (_∙ ap (σ-part (i ∧ j)) (H-path i x j p)) (sym (ap-id _)))
-                  ⟩
-
-                Σ-path→ (＝Σ-∙ (refl , f-path i (σ-part i x) j p) (refl , ap (σ-part (i ∧ j)) (H-path i x j p)))
-
-                ＝⟨ Σ-path→-∙ (refl , f-path i (σ-part i x) j p) (refl , ap (σ-part (i ∧ j)) (H-path i x j p)) ⟩
-
-                f (σ-part i x , j , p)
-                ∙ Σ-path→ (refl , ap (σ-part (i ∧ j)) (H-path i x j p))
-
-
-                ＝⟨ ap (f (σ-part i x , j , p) ∙_) (sym (ap-total-map-Σ-path-refl _ _)) ⟩
-
-                f (σ-part i x , j , p)
-                ∙ ap σ (H i (x , j , p))
-
-                ＝⟨⟩
-
-                ap (f (σ-part i x , j , p) ∙_) (sym (cogap-◃h-glue _ σ (x , j , p)))))
-
   right-square
-    : Arrow-map (total-map (λ i → pushout-product (σ-part i) D.σ)) σ
+    : Arrow-map (total-map (λ i → pushout-product (σ-part i) D.σ)) (σ {X = X})
   right-square .Arrow-Π.top = uncurry ε̄̃
   right-square .Arrow-Π.bot = uncurry ε
   right-square .Arrow-Π.comm x = (S (x .fst)) .Arrow-Π.comm (x .snd)
