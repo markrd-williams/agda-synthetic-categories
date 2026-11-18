@@ -356,6 +356,23 @@ module WithCoStrictMeet
 
                 ap (f (X.σ-part i x , j , p) ∙_) (sym (cogap-◃h-glue _ X.σ (x , j , p)))))
 
+  right-square
+    : Arrow-map (total-map (λ i → pushout-product (X.σ-part i) D.σ)) X.σ
+  right-square .Arrow-Π.top = uncurry ε̄̃
+  right-square .Arrow-Π.bot = uncurry ε
+  right-square .Arrow-Π.comm x = (S (x .fst)) .Arrow-Π.comm (x .snd)
+
+  g : (a : Scn X) → Σ[ i ∶ Δ¹ ] (Pushout ((X.σ-part i ×₁1 _)) (_ 1×₁ D.σ))
+  g = total-map (λ a x → ι₂ (x , a , id))
+
+  g' : (a : Lᵒ X) → Σ[ i ∶ Δ¹ ] ((i ＝ i1 → X) × Lᵒ (i ＝ i1))
+  g' = total-map (λ a x → (x , a , id))
+
+  left-square : Arrow-map X.σ (total-map (λ i → (X.σ-part i) □ D.σ))
+  left-square .Arrow-Π.top = g
+  left-square .Arrow-Π.bot a = (a .fst , (a .snd) , a .fst , id)
+  left-square .Arrow-Π.comm = ~refl
+
 module EasyMode
   (h : i0 ≠ i1)
   (let module M {𝓤} {X : Type 𝓤} = WithCoStrict {X = X} (¡ ∘ h))
@@ -367,25 +384,7 @@ module EasyMode
 module _
   {𝓤} {X : Type 𝓤} {h : i0 ≠ i1}
   (open EasyMode h)
-  (let module D {i j : Δ¹} = WithCoStrict (Δ¹-＝-is-co-strict {i} {j}))
   where
-
-  right-square
-    : Arrow-map (total-map (λ i → pushout-product (σ-part i) D.σ)) (σ {X = X})
-  right-square .Arrow-Π.top = uncurry ε̄̃
-  right-square .Arrow-Π.bot = uncurry ε
-  right-square .Arrow-Π.comm x = (S (x .fst)) .Arrow-Π.comm (x .snd)
-
-  g : (a : Scn X) → Σ[ i ∶ Δ¹ ] (Pushout ((σ-part i ×₁1 _)) (_ 1×₁ D.σ))
-  g = total-map (λ a x → ι₂ (x , a , id))
-
-  g' : (a : Lᵒ X) → Σ[ i ∶ Δ¹ ] ((i ＝ i1 → X) × Lᵒ (i ＝ i1))
-  g' = total-map (λ a x → (x , a , id))
-
-  left-square : Arrow-map σ (total-map (λ i → (σ-part i) □ D.σ))
-  left-square .Arrow-Π.top = g
-  left-square .Arrow-Π.bot a = (a .fst , (a .snd) , a .fst , id)
-  left-square .Arrow-Π.comm = ~refl
 
   Idᶠ-∘-prop
     : ∀ {𝓤} {i j : Δ¹} {Y : Type 𝓤}
@@ -477,7 +476,10 @@ module _
   bot : (x : Lᵒ X) → ε (x .fst) (g' x .snd) ＝ x
   bot = Σ-path→ ∘ uncurry (λ i x → (∧-idem , Idᶠ-∘-prop ∧-idem ϕ x))
 
-  Sierpinski-retract-coh : Arrow-map-path (paste-squares right-square left-square) id-square
+  Sierpinski-retract-coh
+    : Arrow-map-path
+        (paste-squares (right-square {X = X}) left-square)
+        (id-square)
   Sierpinski-retract-coh .fst = top
   Sierpinski-retract-coh .snd .fst = bot
   Sierpinski-retract-coh .snd .snd
