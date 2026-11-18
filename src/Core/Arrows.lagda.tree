@@ -657,7 +657,7 @@ total-square F .Arrow-map.comm (i , a)
 }
 
 \subtree[bak-D1A8]{
-\title{Uncurryiing squares}
+\title{Uncurrying squares}
 \taxon{Construction}
 \author{fredrikbakke}
 \date{2026-11-18}

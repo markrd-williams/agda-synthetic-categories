@@ -27,6 +27,8 @@ algraicaly->algebraically
 algraiclly->algebraically
 algraicly->algebraically
 alongisde->alongside
+amaziing->amazing
+amaziingly->amaziigly
 amazint->amazing
 amazintly->amazingly
 aprox->approx
@@ -90,6 +92,7 @@ cris->crisp
 cuibical->cubical
 cummutes->commutes
 cummuting->commuting
+curryiing->currying
 definitionaly->definitionally
 defintional->definitional
 defintionally->definitionally
@@ -414,6 +417,7 @@ trianges->triangles
 tripple->triple
 tripples->triples
 uiver->quiver
+uncurryiing->uncurrying
 univalance->univalence
 univalant->univalent
 univialence->univalence
