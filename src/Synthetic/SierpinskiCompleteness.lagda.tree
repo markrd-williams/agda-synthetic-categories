@@ -245,22 +245,13 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
         ∙h happly (ap (σ-part (i ∧ j)) (H-path i x j p))
       lem j = pushout-ind _
         (mk-coconeᵈ
-          (λ p → pushout-ind _
+          (λ p _ → funext→ (λ r → ¡ (h (sym p ∙ ϕ r))))
+          (λ x → pushout-ind _
             (mk-coconeᵈ
-              (λ q → funext→ λ r → ¡ (h (sym p ∙ ϕ r)))
-              (λ r → ¡ (h (sym p ∙ r)))
-              (λ (_ , s) → ¡ (h (sym p ∙ s)))))
-         (λ x → pushout-ind _
-           (mk-coconeᵈ
-             (λ p → funext→ λ q → ¡ (h (sym p ∙ ϕ' q)))
-             (λ p → funext→ λ q → sym (ap (_∙ _) (∙-reflr _ ∙ ap-const _)))
-             (λ (p , _) → unap-equiv global-funext
-               (funext→ (λ q → ¡ (h (sym p ∙ ϕ' q)))))))
-         (λ (p , x) → funext→ (pushout-ind _
-           (mk-coconeᵈ
-             (λ q → unap-equiv global-funext (funext→ λ r → ¡ (h (sym p ∙ ϕ r))))
-             (λ r → ¡ (h (sym p ∙ r)))
-             (λ (_ , r) → ¡ (h (sym p ∙ r)))))))
+              (λ p → funext→ (λ q → ¡ (h (sym p ∙ ϕ' q))))
+              (λ p → funext→ (λ q → sym (ap (_∙ _) (∙-reflr _ ∙ ap-const _))))
+              (λ (p , _) → Π-is-set (λ q → ¡ (h (sym p ∙ ϕ' q))) _ _ _ _)))
+          (λ (p , _) → Π-is-prop (λ _ → Π-is-set (λ r → ¡ (h (sym p ∙ ϕ r))) _ _) _ _))
 
       lem'
         : (j : Δ¹)
