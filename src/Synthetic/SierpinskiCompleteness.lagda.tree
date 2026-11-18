@@ -384,62 +384,6 @@ module WithCoStrictMeet
   Idᶠ-*-prop {i} refl g
     = *₁-htpy (λ _ → prop!) ~refl ∙h (*₁-id h⁻¹)
 
-  σ-nat-id
-    : {i : Δ¹}
-    → (x : (i ＝ i0) * X)
-    → σ-part-nat id id x ＝ happly (((σ-part i) ◃h (*₁-id)) x)
-  σ-nat-id {i}
-    = pushout-ind
-        (eq-value (σ-part-nat id id) (happly ∘ (σ-part i ◃h *₁-id)))
-        (mk-coconeᵈ
-          (λ p → funext→ (λ q → is-truncated←is-single
-            (is-single←i=1←i=0 p q) {n = 0𝕋} _ _ _ _))
-          (~refl)
-          (λ (p , _) → Π-is-set (λ q → is-truncated←is-single
-            (is-single←i=1←i=0 p q) {n = 1𝕋} _ _) _ _ _ _))
-
-  lem2-id
-    : {i : Δ¹}
-    → (x : (i ＝ i0) * X)
-    → ((funext→ ∘ σ-part-nat id id) ∙h (σ-part i ◃h (*₁-htpy (λ _ → prop!) ~refl ∙h (*₁-id h⁻¹)))) x
-    ＝ ap ((σ-part i x) ∘_) prop!
-  lem2-id {i} x =
-    ((funext→ ∘ σ-part-nat id id) ∙h
-       σ-part i ◃h (*₁-htpy (λ z → prop!) ~refl ∙h *₁-id h⁻¹)) x
-         ＝⟨ ap
-              (_∙ (σ-part i ◃h (*₁-htpy (λ z → prop!) ~refl ∙h *₁-id h⁻¹)) x) (ap funext→ (σ-nat-id x)) ⟩
-    ((funext→ ∘ happly ∘ ((σ-part i) ◃h (*₁-id))) ∙h
-       σ-part i ◃h (*₁-htpy (λ z → prop!) ~refl ∙h *₁-id h⁻¹)) x
-       ＝⟨ ap
-            (_∙ (σ-part i ◃h (*₁-htpy (λ z → prop!) ~refl ∙h *₁-id h⁻¹)) x) (_≃_.η funext≃ (((σ-part i) ◃h (*₁-id)) x)) ⟩
-    ((σ-part i ◃h (*₁-id)) ∙h(σ-part i ◃h (*₁-htpy (λ z → prop!) ~refl ∙h *₁-id h⁻¹))) x
-      ＝⟨ (◃h∙ (σ-part i) _ _ h⁻¹) x ⟩
-       (σ-part i ◃h (*₁-id ∙h (*₁-htpy (λ z → prop!) ~refl) ∙h *₁-id h⁻¹)) x
-      ＝⟨ ap (λ - → (σ-part i ◃h (*₁-id ∙h (*₁-htpy - ~refl) ∙h *₁-id h⁻¹)) x) prop! ⟩
-       (σ-part i ◃h (*₁-id ∙h (*₁-htpy ~refl ~refl) ∙h *₁-id h⁻¹)) x
-      ＝⟨ ap (λ - → (σ-part i ◃h (*₁-id ∙h - ∙h *₁-id h⁻¹)) x) (funext→ *₁-htpy-refl) ⟩
-       (σ-part i ◃h (*₁-id ∙h *₁-id h⁻¹)) x
-      ＝⟨ ap (ap (σ-part i)) (∙-sym (*₁-id x)) ⟩
-        refl
-      ＝⟨ sym (ap-refl' prop! _) ⟩
-        ap (_∘_ (σ-part i x)) prop! ∎
-
-  lem2
-    : {i : Δ¹}
-    → (f : i ＝ i1 → i ＝ i1)
-    → (g : i ＝ i0 → i ＝ i0)
-    → (x : (i ＝ i0) * X)
-    → ((funext→ ∘ σ-part-nat f g) ∙h (σ-part i ◃h (*₁-htpy (λ _ → prop!) ~refl ∙h (*₁-id h⁻¹)))) x
-    ＝ (ap ((σ-part i x) ∘_) prop!)
-  lem2 {i} f g x
-    = tr₂
-        (λ f g₁
-        → ((funext→ ∘ σ-part-nat f g₁)
-        ∙h σ-part i ◃h (*₁-htpy (λ _ → prop!) ~refl ∙h *₁-id h⁻¹))
-          x
-        ＝ ap (σ-part i x ∘_) prop!)
-        prop! prop! (lem2-id x)
-
   Path-Idᶠ-σ-nat
     : {i j : Δ¹}
     → (p : j ＝ i)
@@ -452,8 +396,13 @@ module WithCoStrictMeet
         (funext→ (σ-part-nat f g x))
         (happlyᶠ p (σ-part j) (σ-part i) (apᶠ σ-part p) (Idᶠ-*-prop p g x))
     ＝ Idᶠ-∘-prop p f (σ-part i x)
-  Path-Idᶠ-σ-nat {i} {j} refl f g x =
-    ap (_∙ _) (ap-id (funext→ (σ-part-nat f g x))) ∙ lem2 f g x
+  Path-Idᶠ-σ-nat refl f g = pushout-ind _
+    (mk-coconeᵈ
+      (λ p → is-truncated←is-single
+        (Π-is-single (is-single←i=1←i=0 p)) {n = 0𝕋} _ _ _ _)
+      (λ _ → ap (λ p → ap id p ∙ refl) funext-refl ∙ sym (ap-const _))
+      (λ (p , _) → is-truncated←is-single
+        (Π-is-single (is-single←i=1←i=0 p)) {n = 1𝕋} _ _ _ _ _ _))
 
   top : uncurry ε̄̃ ∘ g ~ id
   top = Σ-path→ ∘ uncurry (λ i x → (∧-idem , Idᶠ-*-prop ∧-idem ψ x))
