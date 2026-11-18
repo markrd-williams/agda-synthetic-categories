@@ -40,6 +40,8 @@ open import Core.PushoutSums
 open import Core.SigmaDependentIdentity
 open import Core.SigmaIdentityProperties
 open import Core.Joins
+
+open import Synthetic.CoStrict Δ¹ ≤-bounded-poset
 }
 }
 
@@ -60,30 +62,43 @@ Scn₁ f (i , x) = (i , (id *₁ f) x)
 }
 
 \agda{
-module EasyMode (h : i0 ≠ i1) where
+module WithCoStrict {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X) where
 
   σ-part-cocone
-    : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹)
-      → Cocone (mk-span ((i ＝ i0) × X) fst snd) (i ＝ i1 → X)
-  σ-part-cocone i .Cocone.p p q = ¡ (h (sym p ∙ q))
+    : (i : Δ¹)
+    → Cocone (mk-span ((i ＝ i0) × X) fst snd) (i ＝ i1 → X)
+  σ-part-cocone i .Cocone.p p q
+    = is-single-if-0=1←is-co-strict X-is-co-strict (sym p ∙ q) .centre
   σ-part-cocone i .Cocone.q x _ = x
-  σ-part-cocone i .Cocone.filler (p , _) = funext→ (λ q → ¡ (h (sym p ∙ q)))
+  σ-part-cocone i .Cocone.filler (p , x)
+    = funext→ (λ q
+      → is-single-if-0=1←is-co-strict X-is-co-strict (sym p ∙ q) .central x)
 
-  σ-part : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹) → (i ＝ i0) * X → (i ＝ i1) → X
+  σ-part : (i : Δ¹) → (i ＝ i0) * X → (i ＝ i1) → X
   σ-part i = pushout-rec (σ-part-cocone i)
 
   τ-part-cocone
-    : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹)
-      → Cocone (mk-span (X × (i ＝ i1)) fst snd) (i ＝ i0 → X)
-  τ-part-cocone i .Cocone.p x _ = x
-  τ-part-cocone i .Cocone.q p q = ¡ (h (sym q ∙ p))
-  τ-part-cocone i .Cocone.filler (x , p) = funext→ (λ q → ¡ (h (sym q ∙ p)))
+    : (i : Δ¹)
+    → Cocone (mk-span (X × (i ＝ i1)) fst snd) (i ＝ i0 → X)
+  τ-part-cocone i .Cocone.p x _
+    = x
+  τ-part-cocone i .Cocone.q p q
+    = is-single-if-0=1←is-co-strict X-is-co-strict (sym q ∙ p) .centre
+  τ-part-cocone i .Cocone.filler (x , p)
+    = funext→ (λ q → sym
+      (is-single-if-0=1←is-co-strict X-is-co-strict (sym q ∙ p) .central x))
 
-  τ-part : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹) → X * (i ＝ i1) → (i ＝ i0) → X
+  τ-part : (i : Δ¹) → X * (i ＝ i1) → (i ＝ i0) → X
   τ-part = pushout-rec ∘ τ-part-cocone
 
-  σ : ∀ {𝓤} {X : Type 𝓤} → Scn X → Lᵒ X
+  σ : Scn X → Lᵒ X
   σ = total-map σ-part
+
+module EasyMode
+  (h : i0 ≠ i1)
+  (let module M {𝓤} {X : Type 𝓤} = WithCoStrict {X = X} (¡ ∘ h))
+  where
+  open M public
 
   Sierpinski-interchange-ι₁
     : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
