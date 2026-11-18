@@ -316,7 +316,10 @@ module _
         ∙ ap ((f-path i (σ-part i x) j p) ∙_) (funext.η _)
 
       C : Coconeᵈ
-            (mk-span (((i ＝ i0) * X) × Scn (i ＝ i1)) (σ-part i ×₁1 Scn (i ＝ i1)) (((i ＝ i0) * X) 1×₁ D.σ))
+            (mk-span
+              (((i ＝ i0) * X) × Scn (i ＝ i1))
+              (σ-part i ×₁1 Scn (i ＝ i1))
+              (((i ＝ i0) * X) 1×₁ D.σ))
             pushout
             _
       C .Coconeᵈ.p = f
@@ -332,7 +335,9 @@ module _
                 ( ((ε i ∘ (σ-part i □ D.σ)) ◃h glue) (x , j , p)
                 ∙ g (x , j , D.σ-part j p)
 
-                ＝⟨ ap (_∙ g (x , j , D.σ-part j p)) (cogap-◃h-glue _ (ε i) (x , j , p)) ⟩
+                ＝⟨ ap
+                    (_∙ g (x , j , D.σ-part j p))
+                    (cogap-◃h-glue _ (ε i) (x , j , p)) ⟩
 
                 (ε i ◃h Product-hom (σ-part i) D.σ .Arrow-Π.comm) (x , j , p)
                 ∙ g (x , j , D.σ-part j p)
