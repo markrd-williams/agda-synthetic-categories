@@ -61,8 +61,9 @@ Lᵒ₁ f (i , p) = i , (f ∘ p)
 Scn : ∀ {𝓤} (X : Type 𝓤) → Type (𝓘 ⊔ 𝓤)
 Scn X = Σ[ i ∶ Δ¹ ] ((i ＝ i0) * X)
 
-Scn₁ : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} (f : X → Y)
-        → Scn X → Scn Y
+Scn₁
+  : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} (f : X → Y)
+    → Scn X → Scn Y
 Scn₁ f (i , x) = (i , (id *₁ f) x)
 }
 
@@ -117,10 +118,8 @@ module _
         (mk-coconeᵈ
           (~refl)
           (λ q → sym (glue (_ , _)))
-          ( λ (_ , q)
-            → is-truncated←is-single
-               (*-single' (X.is-single←i=1←i=0 p q))
-               {n = 0𝕋} _ _ _ _))
+          ( λ (_ , q) → is-truncated←is-single
+              (*-single' (X.is-single←i=1←i=0 p q)) {n = 0𝕋} _ _ _ _))
 
   Sierpinski-interchange
     : (i : Δ¹)
@@ -138,14 +137,10 @@ module _
             ＝ Sierpinski-interchange-ι₁ i p y ∙ glue (Y.τ-part i y p , x))
           (mk-coconeᵈ
             (λ y → ap (_∙ glue (y , x)) (ap-const _))
-            ( λ q
-              → is-truncated←is-single
-                  (*-single' (X.is-single←i=1←i=0 p q))
-                  {n = 0𝕋} _ _ _ _)
-            ( λ (_ , q)
-              → is-truncated←is-single
-                  (*-single' (X.is-single←i=1←i=0 p q))
-                  {n = 1𝕋} _ _ _ _ _ _))
+            ( λ q → is-truncated←is-single
+                (*-single' (X.is-single←i=1←i=0 p q)) {n = 0𝕋} _ _ _ _)
+            ( λ (_ , q) → is-truncated←is-single
+                (*-single' (X.is-single←i=1←i=0 p q)) {n = 1𝕋} _ _ _ _ _ _))
           (y))
         (x)
 
@@ -457,10 +452,10 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
   bot : (x : Lᵒ X) → ε (x .fst) (g' x .snd) ＝ x
   bot = Σ-path→ ∘ uncurry (λ i x → (∧-idem , Idᶠ-∘-prop ∧-idem ϕ x))
 
-  sierpinski-retract : Arrow-map-path (paste-squares right-square left-square) id-square
-  sierpinski-retract .fst = top
-  sierpinski-retract .snd .fst = bot
-  sierpinski-retract .snd .snd
+  Sierpinski-retract-coh : Arrow-map-path (paste-squares right-square left-square) id-square
+  Sierpinski-retract-coh .fst = top
+  Sierpinski-retract-coh .snd .fst = bot
+  Sierpinski-retract-coh .snd .snd
     = (K ▹h g) ∙h (σ ◃h top)
         ~⟨ (~refl: K ∘ g) ⟩∙h⟨ uncurry (λ i x → Σ-path→-ap-total-map σ-part (∧-idem , _)) ⟩
      (K ▹h g)
