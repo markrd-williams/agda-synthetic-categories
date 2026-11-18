@@ -295,6 +295,35 @@ tr-* refl = pushout-rec-unique _ _ ~refl ~refl (∙h-reflr (id ◃h glue) ∙h i
 }
 }
 
+\subtree[bak-F9E8]{
+\title{Joining a map with a constant map}
+\taxon{Lemma}
+\author{fredrikbakke}
+\date{2026-11-18}
+
+\p{
+The [join](stt-009L) of a map with a constant map at #{b} is homotopic to the
+constant map at #{\iota_2(b)}.
+}
+
+\agda{
+*₁-const-right
+  : ∀ {𝓤 𝓜 𝓥 𝓦}
+      {A : Type 𝓤} {A' : Type 𝓜}
+      {B : Type 𝓥} {B' : Type 𝓦}
+    → (f : A → A') (b : B') (z : A * B)
+    → (f *₁ const b) z ＝ ι₂ b
+*₁-const-right f b
+  = pushout-ind _
+      (mk-coconeᵈ
+        (λ a → glue (f a , b))
+        (~refl)
+        (λ a
+        → Idᵈ-func←Square _ _ _
+            (mk-square (ap₂ _∙_ (pushout-rec-apβ a) (sym (ap-const (glue a)))))))
+}
+}
+
 \subtree[stt-00FH]{
 \title{Null-homotopies of maps out of a join}
 \taxon{Theorem}
