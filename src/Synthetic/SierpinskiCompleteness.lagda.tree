@@ -373,19 +373,6 @@ module WithCoStrictMeet
   left-square .Arrow-Π.bot a = (a .fst , (a .snd) , a .fst , id)
   left-square .Arrow-Π.comm = ~refl
 
-module EasyMode
-  (h : i0 ≠ i1)
-  (let module M {𝓤} {X : Type 𝓤} = WithCoStrict {X = X} (¡ ∘ h))
-  (let module N {𝓤} {X : Type 𝓤} = WithCoStrictMeet {X = X} (¡ ∘ h))
-  where
-  open M public
-  open N public
-
-module _
-  {𝓤} {X : Type 𝓤} {h : i0 ≠ i1}
-  (open EasyMode h)
-  where
-
   Idᶠ-∘-prop
     : ∀ {𝓤} {i j : Δ¹} {Y : Type 𝓤}
       → (p : j ＝ i)
@@ -409,9 +396,12 @@ module _
   σ-nat-id {i}
     = pushout-ind
         (eq-value (σ-part-nat id id) (happly ∘ (σ-part i ◃h *₁-id)))
-        (mk-coconeᵈ (λ p → funext→ (λ q → ¡ (h (sym p ∙ q))))
-        ~refl
-        (λ (p , x) → unap-equiv global-funext (funext→ (λ q → ¡ (h (sym p ∙ q))))))
+        (mk-coconeᵈ
+          (λ p → funext→ (λ q → is-truncated←is-single
+            (is-single←i=1←i=0 p q) {n = 0𝕋} _ _ _ _))
+          (~refl)
+          (λ (p , _) → Π-is-set (λ q → is-truncated←is-single
+            (is-single←i=1←i=0 p q) {n = 1𝕋} _ _) _ _ _ _))
 
   lem2-id
     : {i : Δ¹}
@@ -478,7 +468,7 @@ module _
 
   Sierpinski-retract-coh
     : Arrow-map-path
-        (paste-squares (right-square {X = X}) left-square)
+        (paste-squares right-square left-square)
         (id-square)
   Sierpinski-retract-coh .fst = top
   Sierpinski-retract-coh .snd .fst = bot
