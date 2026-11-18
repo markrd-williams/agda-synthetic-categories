@@ -245,7 +245,7 @@ two propositions. This goes via the [flattening lemma for pushouts](stt-008D).
 
 
   intended-span : Span 𝓘 𝓘 𝓘
-  intended-span = mk-span ((i0 ＝ s .Poly.Δ².t) × (i1 ＝ s .Poly.Δ².s)) fst snd
+  intended-span = *-span (i0 ＝ s .Poly.Δ².t) (i1 ＝ s .Poly.Δ².s)
 
   span-map : Span-map intended-span total-fibre-span
   span-map .Span-map.h₁ p = (s .Poly.Δ².s , Δ²-ext (refl , p))

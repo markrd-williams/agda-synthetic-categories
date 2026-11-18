@@ -320,7 +320,7 @@ opaque
     _ = refl
 
     intended-span : Span 𝓘 𝓘 𝓘
-    intended-span = mk-span ((i ≤ j) × (j ≤ i)) fst snd
+    intended-span = *-span (i ≤ j) (j ≤ i)
 
     intended-span-is-prop : is-prop-span intended-span
     intended-span-is-prop .fst = ≤-is-prop

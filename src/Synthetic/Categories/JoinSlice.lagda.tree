@@ -28,6 +28,7 @@ open import Modalities.Instances.Localisation
 open import Modalities.Instances.Nullification
 
 open import Core.Coslices
+open import Core.Joins
 
 open import Ergonomics.Extensionality
 
@@ -104,7 +105,7 @@ opaque
             ∙e (Σ-fst-≃ Σ-assoc))) ⟩
       Σ[ f ∶ (Σ[ f ∶ (A → C)] Σ[ g ∶ (B → C)] (∀ x → Hom C (f (fst x)) (g (snd x)))) ]
         (f .snd .fst ~ p) ≃⟨ Σ-fst-≃ (directed-cocone-repr≃ e⁻¹) ⟩
-      Σ[ f ∶ directed-cocone (mk-span (A × B) fst snd) C ] (f .directed-cocone.j ~ p)
+      Σ[ f ∶ directed-cocone (*-span A B) C ] (f .directed-cocone.j ~ p)
          ≃⟨ Σ-fst-≃ (↑-UP≃ e⁻¹) ⟩
       Σ[ f ∶ (A ◇ B → C)] (f ∘ ↑-ι₂ ~ p) ≃⟨⟩
       Coslice-map ↑-ι₂ p   ≃∎

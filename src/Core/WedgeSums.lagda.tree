@@ -154,7 +154,7 @@ opaque
     intended-span .Span.Right = ULift 𝓥 (a ＝ x)
     intended-span .Span.right = snd
 
-    span-qeqv→ : Span-map intended-span (mk-span ((b ＝ y) × (a ＝ x)) fst snd)
+    span-qeqv→ : Span-map intended-span (*-span (b ＝ y) (a ＝ x))
     span-qeqv→ .Span-map.h₁ = unlift
     span-qeqv→ .Span-map.h₂ = unlift ×₁ unlift
     span-qeqv→ .Span-map.h₃ = unlift

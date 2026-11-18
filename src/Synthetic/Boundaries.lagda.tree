@@ -173,7 +173,7 @@ identifies this boundary with the subtype of #{(i,j) : \Delta^2} where
                                 (Fibre-family ∂Δ²-Δ²-cocone a)
 
   intended-span : Span 𝓘 𝓘 𝓘
-  intended-span = mk-span ((a ∈ Λ[2,1]Sub) × (j ＝ i)) fst snd
+  intended-span = *-span (a ∈ Λ[2,1]Sub) (j ＝ i)
 
   intended-span-is-prop : is-prop-span intended-span
   intended-span-is-prop .fst = ∈-is-prop Λ[2,1]Sub (i , j)

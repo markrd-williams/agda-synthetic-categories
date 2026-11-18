@@ -45,6 +45,9 @@ infixl 15 _*_
 
 _*_ : ∀ {𝓤 𝓥} → Type 𝓤 → Type 𝓥 → Type (𝓤 ⊔ 𝓥)
 A * B = Pushout {A = A × B} fst snd
+
+*-span : ∀ {𝓤 𝓥} → Type 𝓤 → Type 𝓥 → Span (𝓤 ⊔ 𝓥) 𝓤 𝓥
+*-span A B = mk-span (A × B) fst snd
 }
 }
 
@@ -106,7 +109,7 @@ is again a proposition.}
 *-disj≃ {A = A} {B} {Q} pq
  = (A * B → Q)
       ≃⟨ Pushout-UP≃ ⟩
-   Cocone (mk-span _ fst snd) Q
+   Cocone (*-span A B) Q
       ≃⟨ cocone-repr≃ ⟩
    Σ[ f ∶ (A → Q) ] Σ[ g ∶ (B → Q) ] (f ∘ fst ~ g ∘ snd)
       ≃⟨ Σ-snd-≃ (λ f → Σ-snd-≃ (λ g → curry≃)) ⟩
@@ -355,7 +358,7 @@ join-rec≃null-homotopies
 join-rec≃null-homotopies {A = A} {B} {Q}
   = (A * B → Q)
       ≃⟨ Pushout-UP≃ ⟩
-    Cocone (mk-span _ fst snd) Q
+    Cocone (*-span A B) Q
       ≃⟨ cocone-repr≃ ⟩
     Σ[ l ∶ (A → Q) ] Σ[ r ∶ (B → Q) ] (l ∘ fst ~ r ∘ snd)
       ≃⟨ Σ-snd-≃ (λ l → Σ-snd-≃ (λ r → curry≃)) ⟩
@@ -457,7 +460,7 @@ module _
   join-ind-paths≃null-homotopy-at
     = (((j : A * B) → l ＝ q j))
         ≃⟨ Pushout-UPᵈ≃ e⁻¹ ⟩
-      Coconeᵈ (mk-span _ fst snd) pushout (λ j → l ＝ q j)
+      Coconeᵈ (*-span A B) pushout (λ j → l ＝ q j)
         ≃⟨ coconeD-repr≃ ⟩
       (Σ[ t ∶ ((a : A) → l ＝ q (ι₁ a)) ]
        Σ[ r ∶ ((b : B) → l ＝ q (ι₂ b)) ]

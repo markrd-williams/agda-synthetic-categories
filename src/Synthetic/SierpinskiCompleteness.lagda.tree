@@ -66,7 +66,7 @@ module WithCoStrict {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X) whe
 
   σ-part-cocone
     : (i : Δ¹)
-    → Cocone (mk-span ((i ＝ i0) × X) fst snd) (i ＝ i1 → X)
+    → Cocone (*-span (i ＝ i0) X) (i ＝ i1 → X)
   σ-part-cocone i .Cocone.p p q
     = is-single-if-0=1←is-co-strict X-is-co-strict (sym p ∙ q) .centre
   σ-part-cocone i .Cocone.q x _ = x
@@ -79,7 +79,7 @@ module WithCoStrict {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X) whe
 
   τ-part-cocone
     : (i : Δ¹)
-    → Cocone (mk-span (X × (i ＝ i1)) fst snd) (i ＝ i0 → X)
+    → Cocone (*-span X (i ＝ i1)) (i ＝ i0 → X)
   τ-part-cocone i .Cocone.p x _
     = x
   τ-part-cocone i .Cocone.q p q
