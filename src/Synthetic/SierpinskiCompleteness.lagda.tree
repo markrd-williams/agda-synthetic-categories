@@ -7,8 +7,7 @@
 \p{
 Based on work in progress by [Bakke](fredrikbakke), [Sterling](jonsterling),
 [Damuni Williams](markwilliams) and [Ye](lingyuanye),
-revising a proof in the unpublished manuscript
-[The Synthetic Sierpiński Cone](https://arxiv.org/abs/2605.00773).
+revising a proof in the unpublished manuscript of [[BSWY26]].
 }
 
 \agda{
