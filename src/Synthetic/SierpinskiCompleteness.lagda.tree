@@ -17,7 +17,7 @@ revising a proof in the unpublished manuscript
 open import Foundations.Universes
 open import Algebra.Lattice
 
-module Synthetic.SierpinskiCompleteness {𝓘} (Δ¹ : Type 𝓘) (I : Lattice Δ¹)  where
+module Synthetic.SierpinskiCompleteness {𝓘} (Δ¹ : Type 𝓘) (I : Lattice Δ¹) where
 
 open Lattice I renaming (0l to i0; 1l to i1)
 
@@ -57,12 +57,14 @@ Scn X = Σ[ i ∶ Δ¹ ] ((i ＝ i0) * X)
 Scn₁ : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} (f : X → Y)
         → Scn X → Scn Y
 Scn₁ f (i , x) = i , (id *₁ f) x
+}
 
+\agda{
 module EasyMode (h : ¬ (i0 ＝ i1)) where
 
   σ-part-Cocone
     : ∀ {𝓤} (X : Type 𝓤) (i : Δ¹)
-      → Cocone (mk-span ((i ＝ i0) × X) (λ r → fst r) (λ r → snd r)) (i ＝ i1 → X)
+      → Cocone (mk-span ((i ＝ i0) × X) fst snd) (i ＝ i1 → X)
   σ-part-Cocone X i .Cocone.p p q = ¡ (h (sym p ∙ q))
   σ-part-Cocone X i .Cocone.q x _ = x
   σ-part-Cocone X i .Cocone.filler (p , _) = funext→ λ q → ¡ (h (sym p ∙ q))

@@ -1,6 +1,8 @@
-\taxon{Person}
 \title{Lingyuan Ye}
-\meta{institution}{[[ucam]], Cambridge Computer Laboratory}
-\meta{position}{PhD Student}
+\taxon{Person}
+\meta{institution}{[[ucam]], Department of Computer Science and Technology}
+\meta{position}{PhD student}
 \meta{external}{https://yelingyuan.fr/}
-\meta{phd-advisor}{ulrikbuchholtz}
+\meta{orcid}{0000-0002-8983-0099}
+\meta{mastodon}{andyfreeyy@mathstodon.xyz}
+\meta{phd-advisor}{jonsterling}
