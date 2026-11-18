@@ -15,11 +15,15 @@ revising a proof in the unpublished manuscript of [[BSWY26]].
 {-# OPTIONS --lossy-unification #-}
 
 open import Foundations.Universes
-open import Algebra.Lattice
+open import Algebra.BoundedPoset
+open import Algebra.Order.BinaryMeets
 
-module Synthetic.SierpinskiCompleteness {𝓘} (Δ¹ : Type 𝓘) (I : Lattice Δ¹) where
-
-open Lattice I renaming (0l to i0; 1l to i1)
+module Synthetic.SierpinskiCompleteness
+  {𝓘 𝓙} (Δ¹ : Type 𝓘) (I : BoundedPoset 𝓙 Δ¹)
+  (open BoundedPoset I renaming (0p to i0; 1p to i1))
+  (meets : has-binary-meets poset)
+  (open HasBinaryMeets poset meets)
+  where
 
 open import Axioms.UF
 }
@@ -41,7 +45,7 @@ open import Core.SigmaDependentIdentity
 open import Core.SigmaIdentityProperties
 open import Core.Joins
 
-open import Synthetic.CoStrict Δ¹ ≤-bounded-poset
+open import Synthetic.CoStrict Δ¹ I
 }
 }
 
@@ -139,16 +143,16 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
 
   opaque
     χ : {i j : Δ¹} → j ＝ i0 → i ∧ j ＝ i0
-    χ = ＝0←≤0 ∘ ∧-≤-elimr ∘ ≤←＝
+    χ refl = ∧-bot-right 0-bottom
 
     ψ : {i j : Δ¹} → i ＝ i0 → i ∧ j ＝ i0
-    ψ = ＝0←≤0 ∘ ∧-≤-eliml ∘ ≤←＝
+    ψ refl = ∧-bot-left 0-bottom
 
     ϕ' : {i j : Δ¹} → i ∧ j ＝ i1 → j ＝ i1
-    ϕ' p = ＝1←1≤ (≤-trans (≥←＝ p) (∧-≤-elimr ≤-refl))
+    ϕ' p = ≤-antisym (1-top _) (≤-trans (≥←＝ p) ∧-≤-right)
 
     ϕ : {i j : Δ¹} → i ∧ j ＝ i1 → i ＝ i1
-    ϕ p = ＝1←1≤ (≤-trans (≥←＝ p) (∧-≤-eliml ≤-refl))
+    ϕ p = ≤-antisym (1-top _) (≤-trans (≥←＝ p) ∧-≤-left)
 
   ε̄ : (i : Δ¹) → ((i ＝ i1) → X) × Scn (i ＝ i1) → Scn X
   ε̄ i (x , j , p) .fst = i ∧ j
