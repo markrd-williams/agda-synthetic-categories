@@ -24,9 +24,14 @@ open import Foundations.IdentityReasoning
 \p{A homotopy between functions is a pointwise equality of functions.}
 
 \agda{
-infix 6 _~_
-_~_ : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥} → (f g : (a : A) → B a) → Type (𝓤 ⊔ 𝓥)
-f ~ g = ∀ a → f a ＝ g a
+module _ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥} where
+
+  eq-value : (f g : (a : A) → B a) → A → Type 𝓥
+  eq-value f g a = (f a ＝ g a)
+
+  infix 6 _~_
+  _~_ : (f g : (a : A) → B a) → Type (𝓤 ⊔ 𝓥)
+  f ~ g = ((a : A) → (f a ＝ g a))
 }
 }
 
