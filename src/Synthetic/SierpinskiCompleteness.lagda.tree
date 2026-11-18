@@ -381,7 +381,8 @@ module WithCoStrictMeet
     → (g : i ＝ i0 → j ＝ i0)
     → (x : (i ＝ i0) * X)
     → Idᶠ _ p (((g *₁ id) x)) x
-  Idᶠ-*-prop {i} refl g x = *₁-htpy (λ _ → prop!) ~refl x ∙ (*₁-id h⁻¹) x
+  Idᶠ-*-prop {i} refl g
+    = *₁-htpy (λ _ → prop!) ~refl ∙h (*₁-id h⁻¹)
 
   σ-nat-id
     : {i : Δ¹}
