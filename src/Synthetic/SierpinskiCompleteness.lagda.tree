@@ -108,7 +108,9 @@ module EasyMode (h : ¬ (i0 ＝ i1)) where
               ({! (λ z → (y : Y * (i ＝ i1)) → (id *₁ σ-part X i z) y ＝ (τ-part Y i y *₁ id) z) ◃h glue !} )
               (λ q → ¡ (h (sym p ∙ q)))
               λ {(y , q) → ¡ (h (sym p ∙ q)) })) })
+}
 
+\agda{
 module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} (open EasyMode h) where
 
   opaque
@@ -214,8 +216,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} (open EasyMode h) where
     where
       f : ((x , j , p) : (i ＝ i1 → X) × Scn (i ＝ i1))
         → (i ∧ j , (x ∘ ϕ)) ＝ ((i ∧ j) , σ-part X (i ∧ j) ((χ *₁ x) p))
-      f (x , j , p) =
-        Σ-path→ (refl , f-path i x j p)
+      f (x , j , p) = Σ-path→ (refl , f-path i x j p)
 
       g : ((x , j , p) : ((i ＝ i0) * X) × Lᵒ (i ＝ i1))
         → ((i ∧ j) , σ-part X i x ∘ ϕ) ＝ (((i ∧ j) , σ-part X (i ∧ j) ((ψ *₁ id) x)))
@@ -383,14 +384,14 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} (open EasyMode h) where
     → (g : i ＝ i0 → i ＝ i0)
     → (x : (i ＝ i0) * X)
     → ((funext→ ∘ σ-part-nat f g) ∙h (σ-part X i ◃h (*₁-htpy (λ _ → prop!) ~refl ∙h  (*₁-id h⁻¹)))) x
-               ＝ (ap ((σ-part X i x) ∘_) prop!)
+    ＝ (ap ((σ-part X i x) ∘_) prop!)
   lem2 {i} f g x
     = tr₂
-        (λ f g₁ →
-            ((funext→ ∘ σ-part-nat f g₁) ∙h
-            σ-part X i ◃h (*₁-htpy (λ _ → prop!) ~refl ∙h *₁-id h⁻¹))
-            x
-            ＝ ap (σ-part X i x ∘_) prop!)
+        (λ f g₁
+        → ((funext→ ∘ σ-part-nat f g₁)
+        ∙h σ-part X i ◃h (*₁-htpy (λ _ → prop!) ~refl ∙h *₁-id h⁻¹))
+          x
+        ＝ ap (σ-part X i x ∘_) prop!)
         prop! prop! (lem2-id x)
 
   Path-Idᶠ-σ-nat
@@ -406,17 +407,13 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} (open EasyMode h) where
         (happlyᶠ p (σ-part X j) (σ-part X i) (apᶠ (σ-part X) p) (Idᶠ-*-prop p g x))
     ＝ Idᶠ-∘-prop p f (σ-part X i x)
   Path-Idᶠ-σ-nat {i} {j} refl f g x =
-    ap (_∙ _) ( ap-id (funext→ (σ-part-nat f g x)))
-    ∙ ( (funext→ (σ-part-nat f g x))
-      ∙ (ap (σ-part X i) (*₁-htpy (λ _ → prop!) ~refl x ∙  (*₁-id h⁻¹) x))
-      ＝⟨ lem2 f g x ⟩
-      ap ((σ-part X i x) ∘_) prop!  ∎ )
+    ap (_∙ _) ( ap-id (funext→ (σ-part-nat f g x))) ∙ lem2 f g x
 
   top : uncurry ε̄̃  ∘ g ~ id
-  top = Σ-path→ ∘ uncurry (λ i x → ∧-idem ,  Idᶠ-*-prop ∧-idem ψ x)
+  top = Σ-path→ ∘ uncurry (λ i x → (∧-idem , Idᶠ-*-prop ∧-idem ψ x))
 
   bot : (x : Lᵒ X) → ε (x .fst) (g' x .snd) ＝ x
-  bot = Σ-path→ ∘ uncurry λ i x → ∧-idem , (Idᶠ-∘-prop ∧-idem (λ z → ϕ z) x)
+  bot = Σ-path→ ∘ uncurry (λ i x → (∧-idem , Idᶠ-∘-prop ∧-idem ϕ x))
 
   sierpinski-retract : Arrow-map-path (paste-squares right-square left-square) id-square
   sierpinski-retract .fst = top
@@ -431,9 +428,7 @@ module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} (open EasyMode h) where
         ~⟨
        (λ where
          (i , x) → sym (Σ-path→-∙ _ _)
-                 ∙ (Id-IdΣ→ (＝Σ-∙ (refl , _) _) _ (refl , Path-Idᶠ-σ-nat ∧-idem ϕ ψ x)
-                            ))
-        ⟩
+                 ∙ (Id-IdΣ→ (＝Σ-∙ (refl , _) _) _ (refl , Path-Idᶠ-σ-nat ∧-idem ϕ ψ x))) ⟩
      bot ∘ σ X
         ~⟨  ~sym (∙h-reflr _) ⟩
      (bot ∘ (σ X)) ∙h ~refl ~∎
