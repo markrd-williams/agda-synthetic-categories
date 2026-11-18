@@ -25,6 +25,7 @@ open import Ergonomics.Extensionality
 
 open import Core.Orthogonal
 open import Core.OrthogonalClosure
+open import Core.Joins
 
 open import Modalities.Instances.Nullification
 open import Modalities.GlobalReflectiveSubuniverses
@@ -185,6 +186,32 @@ module _ {𝓤} {X : Type 𝓤} where
 }
 }
 
+\subtree[bak-D49C]{
+\title{Co-strictness of joins}
+\taxon{Lemma}
+\author{fredrikbakke}
+\date{2026-11-18}
+
+\p{
+A [join](stt-002S) is [co-strict](stt-0162) when either factor is co-strict, because
+the join with a contractible type is always contractible.
+}
+
+\agda{
+module _ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} where
+
+  *-is-co-strict←left : is-co-strict X → is-co-strict (X * Y)
+  *-is-co-strict←left X-is-co-strict
+    = is-co-strict←is-single-if-0＝1
+        (*-single ∘ is-single-if-0=1←is-co-strict X-is-co-strict)
+
+  *-is-co-strict←right : is-co-strict Y → is-co-strict (X * Y)
+  *-is-co-strict←right Y-is-co-strict
+    = is-co-strict←is-single-if-0＝1
+        (*-single' ∘ is-single-if-0=1←is-co-strict Y-is-co-strict)
+}
+}
+
 \subtree[stt-0163]{
 \title{Co-strictness of the empty type}
 \taxon{Proposition}
@@ -270,5 +297,9 @@ For any #{f \colon (0 = 1) \to \II} and #{p : 0 = 1}, boundedness gives
   = is-co-strict←exp-is-single
       (mk-singl (const i0) (λ f → funext→ (λ p
         → ≤-antisym (0-bottom (f p)) (≤-trans (1-top (f p)) (≥←＝ p)))))
+
+opaque
+  Δ¹-＝-is-co-strict : {i j : Δ¹} → is-co-strict (i ＝ j)
+  Δ¹-＝-is-co-strict = ＝-is-co-strict Δ¹-is-co-strict
 }
 }
