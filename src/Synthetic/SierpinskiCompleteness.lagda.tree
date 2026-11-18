@@ -144,28 +144,23 @@ module _
           (y))
         (x)
 
-module EasyMode
-  (h : i0 ≠ i1)
-  (let module M {𝓤} {X : Type 𝓤} = WithCoStrict {X = X} (¡ ∘ h))
-  where
-  open M public
 }
 
 \agda{
-module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
+opaque
+  χ : {i j : Δ¹} → j ＝ i0 → i ∧ j ＝ i0
+  χ refl = ∧-bot-right 0-bottom
 
-  opaque
-    χ : {i j : Δ¹} → j ＝ i0 → i ∧ j ＝ i0
-    χ refl = ∧-bot-right 0-bottom
+  ψ : {i j : Δ¹} → i ＝ i0 → i ∧ j ＝ i0
+  ψ refl = ∧-bot-left 0-bottom
 
-    ψ : {i j : Δ¹} → i ＝ i0 → i ∧ j ＝ i0
-    ψ refl = ∧-bot-left 0-bottom
+  ϕ' : {i j : Δ¹} → i ∧ j ＝ i1 → j ＝ i1
+  ϕ' p = ≤-antisym (1-top _) (≤-trans (≥←＝ p) ∧-≤-right)
 
-    ϕ' : {i j : Δ¹} → i ∧ j ＝ i1 → j ＝ i1
-    ϕ' p = ≤-antisym (1-top _) (≤-trans (≥←＝ p) ∧-≤-right)
+  ϕ : {i j : Δ¹} → i ∧ j ＝ i1 → i ＝ i1
+  ϕ p = ≤-antisym (1-top _) (≤-trans (≥←＝ p) ∧-≤-left)
 
-    ϕ : {i j : Δ¹} → i ∧ j ＝ i1 → i ＝ i1
-    ϕ p = ≤-antisym (1-top _) (≤-trans (≥←＝ p) ∧-≤-left)
+module _ {𝓤} {X : Type 𝓤} where
 
   ε̄ : (i : Δ¹) → ((i ＝ i1) → X) × Scn (i ＝ i1) → Scn X
   ε̄ i (x , j , p) .fst = i ∧ j
@@ -175,22 +170,39 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
   ε̃ i (x , j , p) .fst = i ∧ j
   ε̃ i (x , j , p) .snd = (ψ *₁ id) x
 
+module WithCoStrictMeet
+  {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X)
+  (let module X = WithCoStrict X-is-co-strict)
+  (let module D {i j : Δ¹} = WithCoStrict (Δ¹-＝-is-co-strict {i} {j}))
+  where
+
   H-path
     : (i : Δ¹) (x : (i ＝ i0) * X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1))
-    → (χ *₁ σ-part i x) p ＝ (ψ *₁ id) x
+    → (χ *₁ X.σ-part i x) p ＝ (ψ *₁ id) x
   H-path i x j p
-    = (χ *₁ σ-part i x) p
+    = (χ *₁ X.σ-part i x) p
         ＝⟨ sym (*₁-∘ _ _ _ _ p) ⟩
-      ((χ *₁ id) ∘ (id *₁ σ-part i x)) p
-        ＝⟨ ap (χ *₁ id) (Sierpinski-interchange (¡ ∘ h) (¡ ∘ h) i x p) ⟩
-      ((χ *₁ id) ∘ (τ-part i p) *₁ id) x
+      ((χ *₁ id) ∘ (id *₁ X.σ-part i x)) p
+        ＝⟨ ap
+            (χ *₁ id)
+            (Sierpinski-interchange X-is-co-strict Δ¹-＝-is-co-strict i x p) ⟩
+      ((χ *₁ id) ∘ (D.τ-part i p) *₁ id) x
         ＝⟨ *₁-∘ _ _ _ _ x ⟩
-      ((χ ∘ (τ-part i p)) *₁ id) x
+      ((χ ∘ (D.τ-part i p)) *₁ id) x
         ＝⟨⟩
       *₁-htpy (λ _ → prop!) ~refl x
 
-  H : (i : Δ¹)
-      → ε̄ i ∘ (σ-part i ×₁ id) ~ ε̃ i ∘ id ×₁ σ
+module EasyMode
+  (h : i0 ≠ i1)
+  (let module M {𝓤} {X : Type 𝓤} = WithCoStrict {X = X} (¡ ∘ h))
+  (let module N {𝓤} {X : Type 𝓤} = WithCoStrictMeet {X = X} (¡ ∘ h))
+  where
+  open M public
+  open N public
+
+module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
+
+  H : (i : Δ¹) → ε̄ {X = X} i ∘ (σ-part i ×₁ id) ~ ε̃ i ∘ id ×₁ σ
   H i (x , (j , p)) = Σ-path→ (refl , H-path i x j p)
 
   ε̄̃-Cocone
@@ -283,7 +295,8 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
               (λ p → funext→ (λ q → ¡ (h (sym p ∙ ϕ' q))))
               (λ p → funext→ (λ q → sym (ap (_∙ _) (∙-reflr _ ∙ ap-const _))))
               (λ (p , _) → Π-is-set (λ q → ¡ (h (sym p ∙ ϕ' q))) _ _ _ _)))
-          (λ (p , _) → Π-is-prop (λ _ → Π-is-set (λ r → ¡ (h (sym p ∙ ϕ r))) _ _) _ _))
+          (λ (p , _) → Π-is-prop
+            (λ _ → Π-is-set (λ r → ¡ (h (sym p ∙ ϕ r))) _ _) _ _))
 
       lem'
         : (j : Δ¹)
