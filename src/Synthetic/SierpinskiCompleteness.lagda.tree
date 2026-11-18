@@ -225,7 +225,7 @@ module WithCoStrictMeet
       *₁-htpy (λ _ → prop!) ~refl x
 
   H : (i : Δ¹) → ε̄ {X = X} i ∘ (σ-part i ×₁ id) ~ ε̃ i ∘ id ×₁ D.σ
-  H i (x , (j , p)) = Σ-path→ (refl , H-path i x j p)
+  H i (x , (j , p)) = ap (i ∧ j ,_) (H-path i x j p)
 
   ε̄̃-Cocone
     : (i : Δ¹)
@@ -263,11 +263,11 @@ module WithCoStrictMeet
     where
       f : ((x , j , p) : (i ＝ i1 → X) × Scn (i ＝ i1))
         → (i ∧ j , (x ∘ ϕ)) ＝ ((i ∧ j) , σ-part (i ∧ j) ((χ *₁ x) p))
-      f (x , j , p) = Σ-path→ (refl , f-path i x j p)
+      f (x , j , p) = ap (i ∧ j ,_) (f-path i x j p)
 
       g : ((x , j , p) : ((i ＝ i0) * X) × Lᵒ (i ＝ i1))
         → ((i ∧ j) , σ-part i x ∘ ϕ) ＝ (((i ∧ j) , σ-part (i ∧ j) ((ψ *₁ id) x)))
-      g (x , j , p) = Σ-path→ (refl , funext→ (σ-part-nat ϕ ψ x))
+      g (x , j , p) = ap (i ∧ j ,_) (funext→ (σ-part-nat ϕ ψ x))
 
       lem
         : (j : Δ¹)
@@ -322,9 +322,7 @@ module WithCoStrictMeet
                 ( ((ε i ∘ (σ-part i □ D.σ)) ◃h glue) (x , j , p)
                 ∙ g (x , j , D.σ-part j p)
 
-                ＝⟨ ap
-                    (_∙ g (x , j , D.σ-part j p))
-                    (cogap-◃h-glue _ (ε i) (x , j , p)) ⟩
+                ＝⟨ cogap-◃h-glue _ (ε i) (x , j , p) ▸ g (x , j , D.σ-part j p) ⟩
 
                 (ε i ◃h Product-hom (σ-part i) D.σ .Arrow-Π.comm) (x , j , p)
                 ∙ g (x , j , D.σ-part j p)
@@ -333,28 +331,26 @@ module WithCoStrictMeet
 
                 g (x , j , D.σ-part j p)
 
-                ＝⟨ Id-IdΣ→ _ _
-                      (refl
-                      , lem' j x p
-                      ∙ ap (_∙ ap (σ-part (i ∧ j)) (H-path i x j p)) (sym (ap-id _)))
-                  ⟩
+                ＝⟨ ap (ap (i ∧ j ,_)) (lem' j x p) ⟩
 
-                Σ-path→ (＝Σ-∙ (refl , f-path i (σ-part i x) j p) (refl , ap (σ-part (i ∧ j)) (H-path i x j p)))
+                ap (i ∧ j ,_)
+                   (f-path i (σ-part i x) j p ∙ ap (σ-part (i ∧ j)) (H-path i x j p))
 
-                ＝⟨ Σ-path→-∙ (refl , f-path i (σ-part i x) j p) (refl , ap (σ-part (i ∧ j)) (H-path i x j p)) ⟩
+                ＝⟨ ap-∙ (i ∧ j ,_) _ _ ⟩
 
                 f (σ-part i x , j , p)
-                ∙ Σ-path→ (refl , ap (σ-part (i ∧ j)) (H-path i x j p))
+                ∙ ap (i ∧ j ,_) (ap (σ-part (i ∧ j)) (H-path i x j p))
 
-
-                ＝⟨ ap (f (σ-part i x , j , p) ∙_) (sym (ap-total-map-Σ-path-refl _ _)) ⟩
+                ＝⟨ f (σ-part i x , j , p)
+                    ◂ ( sym (ap-∘ (i ∧ j ,_) (σ-part (i ∧ j)) _)
+                      ∙ ap-∘ σ (i ∧ j ,_) _) ⟩
 
                 f (σ-part i x , j , p)
                 ∙ ap σ (H i (x , j , p))
 
                 ＝⟨⟩
 
-                ap (f (σ-part i x , j , p) ∙_) (sym (cogap-◃h-glue _ σ (x , j , p)))))
+                f (σ-part i x , j , p) ◂ sym (cogap-◃h-glue _ σ (x , j , p))))
 
   Sierpinski-retraction-square
     : Arrow-map (total-map (λ i → pushout-product (σ-part i) D.σ)) σ
@@ -481,8 +477,9 @@ module WithCoStrictMeet
         ~⟨
        (λ where
         (i , x)
-          → sym (Σ-path→-∙ _ _)
-          ∙ (Id-IdΣ→ (＝Σ-∙ (refl , _) _) _ (refl , Path-Idᶠ-σ-nat ∧-idem ϕ ψ x))) ⟩
+          → (sym (Σ-path→-refl _) ▸ _)
+          ∙ sym (Σ-path→-∙ _ _)
+          ∙ (Id-IdΣ→ (refl , Path-Idᶠ-σ-nat ∧-idem ϕ ψ x))) ⟩
      bot ∘ σ
         ~⟨ ~sym (∙h-reflr _) ⟩
      (bot ∘ σ) ∙h ~refl ~∎
