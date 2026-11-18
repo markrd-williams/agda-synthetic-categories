@@ -55,29 +55,31 @@ Scn X = Σ[ i ∶ Δ¹ ] ((i ＝ i0) * X)
 
 Scn₁ : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} (f : X → Y)
         → Scn X → Scn Y
-Scn₁ f (i , x) = i , (id *₁ f) x
+Scn₁ f (i , x) = (i , (id *₁ f) x)
 }
 
 \agda{
 module EasyMode (h : i0 ≠ i1) where
 
-  σ-part-Cocone
+  σ-part-cocone
     : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹)
       → Cocone (mk-span ((i ＝ i0) × X) fst snd) (i ＝ i1 → X)
-  σ-part-Cocone i .Cocone.p p q = ¡ (h (sym p ∙ q))
-  σ-part-Cocone i .Cocone.q x _ = x
-  σ-part-Cocone i .Cocone.filler (p , _) = funext→ λ q → ¡ (h (sym p ∙ q))
+  σ-part-cocone i .Cocone.p p q = ¡ (h (sym p ∙ q))
+  σ-part-cocone i .Cocone.q x _ = x
+  σ-part-cocone i .Cocone.filler (p , _) = funext→ (λ q → ¡ (h (sym p ∙ q)))
 
   σ-part : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹) → (i ＝ i0) * X → (i ＝ i1) → X
-  σ-part i = pushout-rec (σ-part-Cocone i)
+  σ-part i = pushout-rec (σ-part-cocone i)
+
+  τ-part-cocone
+    : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹)
+      → Cocone (mk-span (X × (i ＝ i1)) fst snd) (i ＝ i0 → X)
+  τ-part-cocone i .Cocone.p x _ = x
+  τ-part-cocone i .Cocone.q p q = ¡ (h (sym q ∙ p))
+  τ-part-cocone i .Cocone.filler (x , p) = funext→ (λ q → ¡ (h (sym q ∙ p)))
 
   τ-part : ∀ {𝓤} {X : Type 𝓤} (i : Δ¹) → X * (i ＝ i1) → (i ＝ i0) → X
-  τ-part i = pushout-rec C
-    where
-      C : Cocone _ _
-      C .Cocone.p x _ = x
-      C .Cocone.q p q = ¡ (h (sym q ∙ p))
-      C .Cocone.filler (x , p) = funext→ λ q → ¡ (h (sym q ∙ p))
+  τ-part = pushout-rec ∘ τ-part-cocone
 
   σ : ∀ {𝓤} {X : Type 𝓤} → Scn X → Lᵒ X
   σ = total-map σ-part
@@ -352,7 +354,8 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
     → (x : (i ＝ i0) * X)
     → σ-part-nat id id x ＝ happly (((σ-part i) ◃h (*₁-id)) x)
   σ-nat-id {i}
-    = pushout-ind _
+    = pushout-ind
+        (eq-value (σ-part-nat id id) (happly ∘ (σ-part i ◃h *₁-id)))
         (mk-coconeᵈ (λ p → funext→ (λ q → ¡ (h (sym p ∙ q))))
         ~refl
         (λ (p , x) → unap-equiv global-funext (funext→ (λ q → ¡ (h (sym p ∙ q))))))
