@@ -222,7 +222,7 @@ If #{0 = 1}, the [empty type](Foundations.Empty) is not [co-strict](stt-0162).
 ∅-is-not-co-strict←0=1 : i0 ＝ i1 → ¬ is-co-strict ∅
 ∅-is-not-co-strict←0=1 p ∅-is-co-strict = 0≠1←∅-is-co-strict ∅-is-co-strict p
 
-∅-is-not-co-strict↔¬¬0＝1 : ¬i0 ≠ i1 ↔ ¬ (is-co-strict ∅)
+∅-is-not-co-strict↔¬¬0＝1 : ¬¬ (i0 ＝ i1) ↔ ¬ (is-co-strict ∅)
 ∅-is-not-co-strict↔¬¬0＝1 = precomp-↔ ∅-is-co-strict↔0≠1
 }
 }
