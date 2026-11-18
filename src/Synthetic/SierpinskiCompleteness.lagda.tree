@@ -356,11 +356,11 @@ module WithCoStrictMeet
 
                 ap (f (σ-part i x , j , p) ∙_) (sym (cogap-◃h-glue _ σ (x , j , p)))))
 
-  right-square
+  Sierpinski-retraction-square
     : Arrow-map (total-map (λ i → pushout-product (σ-part i) D.σ)) σ
-  right-square .Arrow-Π.top = uncurry ε̄̃
-  right-square .Arrow-Π.bot = uncurry ε
-  right-square .Arrow-Π.comm x = (S (x .fst)) .Arrow-Π.comm (x .snd)
+  Sierpinski-retraction-square .Arrow-Π.top = uncurry ε̄̃
+  Sierpinski-retraction-square .Arrow-Π.bot = uncurry ε
+  Sierpinski-retraction-square .Arrow-Π.comm x = S (x .fst) .Arrow-Π.comm (x .snd)
 
   g : (a : Scn X) → Σ[ i ∶ Δ¹ ] (Pushout ((σ-part i ×₁1 _)) (_ 1×₁ D.σ))
   g = total-map (λ a x → ι₂ (x , a , id))
@@ -368,10 +368,10 @@ module WithCoStrictMeet
   g' : (a : Lᵒ X) → Σ[ i ∶ Δ¹ ] ((i ＝ i1 → X) × Lᵒ (i ＝ i1))
   g' = total-map (λ a x → (x , a , id))
 
-  left-square : Arrow-map σ (total-map (λ i → (σ-part i) □ D.σ))
-  left-square .Arrow-Π.top = g
-  left-square .Arrow-Π.bot a = (a .fst , (a .snd) , a .fst , id)
-  left-square .Arrow-Π.comm = ~refl
+  Sierpinski-inclusion-square : Arrow-map σ (total-map (λ i → (σ-part i) □ D.σ))
+  Sierpinski-inclusion-square .Arrow-Π.top = g
+  Sierpinski-inclusion-square .Arrow-Π.bot a = (a .fst , (a .snd) , a .fst , id)
+  Sierpinski-inclusion-square .Arrow-Π.comm = ~refl
 
   Idᶠ-∘-prop
     : ∀ {𝓤} {i j : Δ¹} {Y : Type 𝓤}
@@ -468,24 +468,26 @@ module WithCoStrictMeet
 
   Sierpinski-retract-coh
     : Arrow-map-path
-        (paste-squares right-square left-square)
+        (paste-squares Sierpinski-retraction-square Sierpinski-inclusion-square)
         (id-square)
-  Sierpinski-retract-coh .fst = top
-  Sierpinski-retract-coh .snd .fst = bot
+  Sierpinski-retract-coh .fst
+    = top
+  Sierpinski-retract-coh .snd .fst
+    = bot
   Sierpinski-retract-coh .snd .snd
     = (K ▹h g) ∙h (σ ◃h top)
         ~⟨ (~refl: K ∘ g) ⟩∙h⟨ uncurry (λ i x → Σ-path→-ap-total-map σ-part (∧-idem , _)) ⟩
      (K ▹h g)
      ∙h (λ a
-        → Σ-path→
-            (＝Σ-ap-total-map σ-part (∧-idem , Idᶠ-*-prop ∧-idem ψ (a .snd))))
+        → Σ-path→ (＝Σ-ap-total-map σ-part (∧-idem , Idᶠ-*-prop ∧-idem ψ (a .snd))))
         ~⟨
        (λ where
-         (i , x) → sym (Σ-path→-∙ _ _)
-                 ∙ (Id-IdΣ→ (＝Σ-∙ (refl , _) _) _ (refl , Path-Idᶠ-σ-nat ∧-idem ϕ ψ x))) ⟩
+        (i , x)
+          → sym (Σ-path→-∙ _ _)
+          ∙ (Id-IdΣ→ (＝Σ-∙ (refl , _) _) _ (refl , Path-Idᶠ-σ-nat ∧-idem ϕ ψ x))) ⟩
      bot ∘ σ
         ~⟨ ~sym (∙h-reflr _) ⟩
      (bot ∘ σ) ∙h ~refl ~∎
     where
-      K = right-square .Arrow-Π.comm
+      K = Sierpinski-retraction-square .Arrow-Π.comm
 }
