@@ -206,6 +206,17 @@ module _
     → u ∘ cogap D ~ cogap E
   cogap-unique E H K M
     = pushout-rec-unique E _ H K ((cogap-◃h-glue ▸h K ▹h g) ∙h M)
+
+cogap-◃h-glue-id
+  : ∀ {𝓤 𝓥 𝓦 𝓧} {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦}
+    {f : A → B} {g : A → C} {X : Type 𝓧}
+    (D : Cocone (mk-span A f g) X)
+    (open Cocone D)
+  → cogap-◃h-glue D id ~  pushout-rec-apβ ∙h (id◃h filler) h⁻¹
+cogap-◃h-glue-id {f = f} {g} {X} D a = ap-∘-idl (pushout-ind (λ _ → X) (Dependent←Cocone D)) (glue a) (filler a) (pushout-rec-apβ a)
+  where
+    open Cocone D
+
 }
 }
 

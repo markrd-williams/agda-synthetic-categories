@@ -202,6 +202,46 @@ f *₁ g = pushout-rec (mk-cocone (ι₁ ∘ f) (ι₂ ∘ g) (glue ∘ (f ×₁
      ∙h (λ a → glue-nat (×-path→ (H (fst a) , K (snd a))))
      ∙h ((ι₁ ⟩◃h⟨ λ a → ×-path-ap-fst) ⟩∙h⟨ (~refl: glue ∘ f' ×₁ g') ))
 
+*₁-htpy-refl
+  : ∀ {𝓤 𝓜 𝓥 𝓦} {A : Type 𝓤} {A' : Type 𝓜} {B : Type 𝓥} {B' : Type 𝓦}
+      {f : A → A'} {g : B → B'}
+    → *₁-htpy (~refl: f) (~refl: g) ~ ~refl
+*₁-htpy-refl {f = f} {g} = pushout-ind _
+  (mk-coconeᵈ
+    ~refl
+    ~refl
+    λ a → Idᵈ-Π←Square
+           (glue a)
+           (Square-paste-horizontal
+             (Square-degen-hor _ _ (pushout-ind-apβ _ ∙ ap (Idᵈ-func←Square (glue a) refl refl ∘ mk-square)
+                          (  ((cogap-◃h-glue C id ▸h ~refl)
+                          ∙h ((id◃h (glue ∘ f ×₁ g)) ⟩∙h⟨ ~refl)
+                          ∙h (λ a → ∙-reflr (glue (f (a .fst) , g (a .snd))) ∙ refl)
+                          ∙h ~refl) a ∙ (ap id (sym (pushout-rec-apβ a))) ＝⟨
+                             ap₂ (_∙_) (ap₂ _∙_ (▸h-~ _ _ ~refl (cogap-◃h-glue-id C) a)
+                                 (ap₂ (_∙_) (ap₂-left-refl (λ x y → y ∙ x) (ap-id (m a))) (∙-reflr (∙-reflr (m a ) ∙ refl) ∙ ∙-reflr _)
+                                   ∙ sym (homotopy-natural ∙-reflr (ap-id (m a)))
+                                   ∙ ap ((∙-reflr (ap id (m a))) ∙_) (ap-id _)) ∙
+                                   sym (∙-assoc (ap (_∙ refl) (pushout-rec-apβ a ∙ sym (ap-id (m a))))  (∙-reflr (ap id (m a))) (ap-id (m a)))
+                                   ∙ ap (_∙ (ap-id (m a)))
+                                   (sym (homotopy-natural ∙-reflr (pushout-rec-apβ a ∙ (sym (ap-id (m a)))))
+                                   ∙ ap (∙-reflr (ap (pushout-rec C) (glue a))   ∙_) (ap-id (pushout-rec-apβ a ∙ sym (ap-id (m a)))))
+                                    ∙ ∙-assoc (∙-reflr (ap (pushout-rec C) (glue a))) (pushout-rec-apβ a ∙ (sym (ap-id (m a)))) (ap-id (m a))
+                                    ∙ ap (∙-reflr _ ∙_) (∙-assoc (pushout-rec-apβ a) (sym (ap-id (m a))) (ap-id (m a))
+                                    ∙ ap (pushout-rec-apβ a ∙_) (∙-sym' (ap-id (m a))))
+                                    ∙ ap (∙-reflr _ ∙_) (∙-reflr _)
+                                          ) (ap-id (sym (pushout-rec-apβ a)))
+                                    ∙ ∙-assoc (∙-reflr _) (pushout-rec-apβ a) (sym (pushout-rec-apβ a))
+                                    ∙ ap (∙-reflr _ ∙_) (∙-sym (pushout-rec-apβ a))
+                                    ∙ ∙-reflr _  ⟩ ∙-reflr (ap (pushout-rec C) (glue a)) ∎
+
+                           ) ∙ Idᵈ-func←Square-refl (glue a))) (mk-square (∙-reflr _))))
+    where
+      m = λ a → glue (f (a .fst) , g (a .snd))
+
+      C : Cocone _ _
+      C = mk-cocone (ι₁ ∘ f) (ι₂ ∘ g) (glue ∘ f ×₁ g)
+
 join-map-section
   : ∀ {𝓤 𝓜 𝓥 𝓦} {A : Type 𝓤} {A' : Type 𝓜} {B : Type 𝓥} {B' : Type 𝓦}
       (f : A → A') (g : B → B') (f' : A' → A) (g' : B' → B)

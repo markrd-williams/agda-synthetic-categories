@@ -302,6 +302,14 @@ opaque
       → Square ai0 ai1 a0i a1i
   mk-square = id
 
+  Idᵈ-func←Square-refl
+    : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : Type 𝓥}
+      {f : A → B}
+      {x y : A} (p : x ＝ y)
+    → Idᵈ-func←Square p refl refl (mk-square (∙-reflr (ap f p)))
+      ＝ apᶠ ~refl p
+  Idᵈ-func←Square-refl refl = refl
+
   un-square
     : ∀ {𝓤} {A : Type 𝓤}
       → {a00 a01 a10 a11 : A}

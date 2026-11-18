@@ -252,6 +252,12 @@ ap-refl
     → ap f (refl {a = x}) ＝ refl
 ap-refl f = refl
 
+ap-refl'
+  : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : Type 𝓥} {x : A} {p : x ＝ x}
+  → (q : p ＝ refl) (f : A → B)
+  → ap f p ＝ refl
+ap-refl' refl f = refl
+
 ap-sym
   : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : Type 𝓥} (f : A → B) {x y : A} (p : x ＝ y)
   → ap f (sym p) ＝ sym (ap f p)
@@ -295,6 +301,17 @@ ap-id refl = refl
 ap-∘ : ∀ {𝓤 𝓥 𝓦}  {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} {x y : A}
           (f : B → C) (g : A → B) (p : x ＝ y) → ap (f ∘ g) p ＝ ap f (ap g p)
 ap-∘ f g refl = refl
+
+ap-∘-idl
+  : ∀ {𝓤 𝓥}
+      {A : Type 𝓤} {B : Type 𝓥}
+      {x y : A}
+      (g : A → B)
+      (p : x ＝ y)
+      (q : g x ＝ g y)
+      (r : ap g p ＝ q)
+    → ap-∘ id g p ∙ ap (ap id) r ＝ r ∙ sym (ap-id q)
+ap-∘-idl g refl q refl = refl
 
 ap-∘∘
   : ∀ {𝓤 𝓥 𝓦 𝓜}  {A : Type 𝓤} {B : Type 𝓥} {C : Type 𝓦} {D : Type 𝓜}

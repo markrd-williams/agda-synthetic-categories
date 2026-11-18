@@ -228,6 +228,14 @@ _▸h_
     → H ~ K → (L : g ~ h) → H ∙h L ~ K ∙h L
 (P ▸h L) a = P a ▸ L a
 
+▸h-~
+  : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥}
+      {f g h : Π A B} {H K : f ~ g}
+    → (P1 P2 : H ~ K) → (L : g ~ h)
+    → (M : P1 ~ P2)
+    → P1 ▸h L ~ P2 ▸h L
+▸h-~ P1 P2 L M a = ap (ap (_∙ L a)) (M a)
+
 ~refl◂h
   : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥}
       {f g : Π A B} {H K : f ~ g} (P : H ~ K)
