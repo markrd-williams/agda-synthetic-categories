@@ -59,7 +59,7 @@ Scn₁ f (i , x) = i , (id *₁ f) x
 }
 
 \agda{
-module EasyMode (h : ¬ (i0 ＝ i1)) where
+module EasyMode (h : i0 ≠ i1) where
 
   σ-part-Cocone
     : ∀ {𝓤} (X : Type 𝓤) (i : Δ¹)
@@ -112,7 +112,7 @@ module EasyMode (h : ¬ (i0 ＝ i1)) where
 }
 
 \agda{
-module _ {𝓤} {X : Type 𝓤} {h : ¬ (i0 ＝ i1)} (open EasyMode h) where
+module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
 
   opaque
     χ : {i j : Δ¹} → j ＝ i0 → i ∧ j ＝ i0
