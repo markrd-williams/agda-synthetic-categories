@@ -358,9 +358,7 @@ module WithCoStrictMeet
 
   Sierpinski-retraction-square
     : Arrow-map (total-map (λ i → pushout-product (σ-part i) D.σ)) σ
-  Sierpinski-retraction-square .Arrow-Π.top = uncurry ε̄̃
-  Sierpinski-retraction-square .Arrow-Π.bot = uncurry ε
-  Sierpinski-retraction-square .Arrow-Π.comm x = S (x .fst) .Arrow-Π.comm (x .snd)
+  Sierpinski-retraction-square = uncurry-square S
 
   g : (a : Scn X) → Σ[ i ∶ Δ¹ ] (Pushout ((σ-part i ×₁1 _)) (_ 1×₁ D.σ))
   g = total-map (λ a x → ι₂ (x , a , id))
