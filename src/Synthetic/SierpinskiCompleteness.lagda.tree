@@ -224,6 +224,21 @@ module WithCoStrictMeet
         ＝⟨⟩
       *₁-htpy (λ _ → prop!) ~refl x
 
+  H : (i : Δ¹) → ε̄ {X = X} i ∘ (X.σ-part i ×₁ id) ~ ε̃ i ∘ id ×₁ D.σ
+  H i (x , (j , p)) = Σ-path→ (refl , H-path i x j p)
+
+  ε̄̃-Cocone
+    : (i : Δ¹)
+    → Cocone (mk-span _ (X.σ-part i ×₁ id) (id ×₁ D.σ)) (Scn X)
+  ε̄̃-Cocone i .Cocone.p = ε̄ i
+  ε̄̃-Cocone i .Cocone.q = ε̃ i
+  ε̄̃-Cocone i .Cocone.filler = H i
+
+  ε̄̃ : (i : Δ¹)
+    → Pushout (X.σ-part i ×₁ id) (id ×₁ D.σ)
+    → Scn X
+  ε̄̃ = pushout-rec ∘ ε̄̃-Cocone
+
   f-htpy
     : (i : Δ¹) (x : i ＝ i1 → X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1))
     → x ∘ ϕ ~ X.σ-part (i ∧ j) ((χ *₁ x) p)
@@ -249,24 +264,13 @@ module EasyMode
   open M public
   open N public
 
-module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
+module _
+  {𝓤} {X : Type 𝓤} {h : i0 ≠ i1}
+  (open EasyMode h)
+  (let module D {i j : Δ¹} = WithCoStrict (Δ¹-＝-is-co-strict {i} {j}))
+  where
 
-  H : (i : Δ¹) → ε̄ {X = X} i ∘ (σ-part i ×₁ id) ~ ε̃ i ∘ id ×₁ σ
-  H i (x , (j , p)) = Σ-path→ (refl , H-path i x j p)
-
-  ε̄̃-Cocone
-    : (i : Δ¹)
-    → Cocone (mk-span _ (σ-part i ×₁ id) (id ×₁ σ)) (Scn X)
-  ε̄̃-Cocone i .Cocone.p = ε̄ i
-  ε̄̃-Cocone i .Cocone.q = ε̃ i
-  ε̄̃-Cocone i .Cocone.filler = H i
-
-  ε̄̃ : (i : Δ¹)
-    → Pushout (σ-part i ×₁ id) (id ×₁ σ)
-    → Scn X
-  ε̄̃ = pushout-rec ∘ ε̄̃-Cocone
-
-  S : (i : Δ¹) → Arrow-map (pushout-product (σ-part i) σ) σ
+  S : (i : Δ¹) → Arrow-map (pushout-product (σ-part i) D.σ) σ
   S i .Arrow-Π.top = ε̄̃ i
   S i .Arrow-Π.bot = ε i
   S i .Arrow-Π.comm = pushout-ind _ C
@@ -312,30 +316,30 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
         ∙ ap ((f-path i (σ-part i x) j p) ∙_) (funext.η _)
 
       C : Coconeᵈ
-            (mk-span (((i ＝ i0) * X) × Scn (i ＝ i1)) (σ-part i ×₁1 Scn (i ＝ i1)) (((i ＝ i0) * X) 1×₁ σ))
+            (mk-span (((i ＝ i0) * X) × Scn (i ＝ i1)) (σ-part i ×₁1 Scn (i ＝ i1)) (((i ＝ i0) * X) 1×₁ D.σ))
             pushout
             _
       C .Coconeᵈ.p = f
       C .Coconeᵈ.q = g
       C .Coconeᵈ.filler (x , j , p)
         = Idᵈ-func←Square
-              {f = ((ε i) ∘ (pushout-product (σ-part i) σ))}
+              {f = ((ε i) ∘ (pushout-product (σ-part i) D.σ))}
               {g = (σ ∘ ε̄̃ i)}
               (glue (x , j , p))
               (f (σ-part i x , j , p))
-              (g (x , j , σ-part j p))
+              (g (x , j , D.σ-part j p))
               (mk-square
-                ( ((ε i ∘ (σ-part i □ σ)) ◃h glue) (x , j , p)
-                ∙ g (x , j , σ-part j p)
+                ( ((ε i ∘ (σ-part i □ D.σ)) ◃h glue) (x , j , p)
+                ∙ g (x , j , D.σ-part j p)
 
-                ＝⟨ ap (_∙ g (x , j , σ-part j p)) (cogap-◃h-glue _ (ε i) (x , j , p)) ⟩
+                ＝⟨ ap (_∙ g (x , j , D.σ-part j p)) (cogap-◃h-glue _ (ε i) (x , j , p)) ⟩
 
-                (ε i ◃h Product-hom (σ-part i) σ .Arrow-Π.comm) (x , j , p)
-                ∙ g (x , j , σ-part j p)
+                (ε i ◃h Product-hom (σ-part i) D.σ .Arrow-Π.comm) (x , j , p)
+                ∙ g (x , j , D.σ-part j p)
 
                 ＝⟨ ∙-refll _ ⟩
 
-                g (x , j , σ-part j p)
+                g (x , j , D.σ-part j p)
 
                 ＝⟨ Id-IdΣ→ _ _
                       (refl
@@ -361,18 +365,18 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
                 ap (f (σ-part i x , j , p) ∙_) (sym (cogap-◃h-glue _ σ (x , j , p)))))
 
   right-square
-    : Arrow-map (total-map (λ i → pushout-product (σ-part i) σ)) σ
+    : Arrow-map (total-map (λ i → pushout-product (σ-part i) D.σ)) σ
   right-square .Arrow-Π.top = uncurry ε̄̃
   right-square .Arrow-Π.bot = uncurry ε
   right-square .Arrow-Π.comm x = (S (x .fst)) .Arrow-Π.comm (x .snd)
 
-  g : (a : Scn X) → Σ[ i ∶ Δ¹ ] (Pushout ((σ-part i ×₁1 _)) (_ 1×₁ σ))
+  g : (a : Scn X) → Σ[ i ∶ Δ¹ ] (Pushout ((σ-part i ×₁1 _)) (_ 1×₁ D.σ))
   g = total-map (λ a x → ι₂ (x , a , id))
 
   g' : (a : Lᵒ X) → Σ[ i ∶ Δ¹ ] ((i ＝ i1 → X) × Lᵒ (i ＝ i1))
   g' = total-map (λ a x → (x , a , id))
 
-  left-square : Arrow-map σ (total-map (λ i → (σ-part i) □ σ))
+  left-square : Arrow-map σ (total-map (λ i → (σ-part i) □ D.σ))
   left-square .Arrow-Π.top = g
   left-square .Arrow-Π.bot a = (a .fst , (a .snd) , a .fst , id)
   left-square .Arrow-Π.comm = ~refl
