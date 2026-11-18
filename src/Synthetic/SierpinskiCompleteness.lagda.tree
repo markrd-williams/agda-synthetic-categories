@@ -2,6 +2,7 @@
 \title{Sierpiński Completeness}
 \taxon{Module}
 \author{markwilliams}
+\contributor{fredrikbakke}
 \import{stt-macros}
 
 \p{
@@ -84,33 +85,38 @@ module EasyMode (h : i0 ≠ i1) where
   σ : ∀ {𝓤} {X : Type 𝓤} → Scn X → Lᵒ X
   σ = total-map σ-part
 
+  Sierpinski-interchange-ι₁
+    : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
+      → (i : Δ¹) (p : i ＝ i0) (y : Y * (i ＝ i1))
+      → (id *₁ σ-part {X = X} i (ι₁ p)) y ＝ ι₁ (τ-part i y p)
+  Sierpinski-interchange-ι₁ i p
+    = pushout-ind _
+        (mk-coconeᵈ
+          (~refl)
+          (λ q → ¡ (h (sym p ∙ q)))
+          (λ (_ , q) → ¡ (h (sym p ∙ q))))
+
   Sierpinski-interchange
     : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
       → (i : Δ¹)
       → (x : (i ＝ i0) * X) (y : Y * (i ＝ i1))
       → (id *₁ (σ-part i x)) y ＝ (τ-part i y *₁ id) x
-  Sierpinski-interchange {X = X} {Y = Y} i
-    = pushout-ind _
-        (mk-coconeᵈ
-          (λ p → pushout-ind _
-            (mk-coconeᵈ
-              (~refl)
-              (λ q → ¡ (h (sym p ∙ q)))
-              (λ (y , q) → ¡ (h (sym p ∙ q)))))
-          (λ x → pushout-ind _
-            (mk-coconeᵈ
-              (λ y → glue (y , x))
-              (~refl)
-              λ a → Idᵈ-func←Square _ _ _
-                (Square-paste-horizontal
-                  (Square-degen-hor _ _ (pushout-rec-apβ _))
-                  (mk-square (ap (_ ∙_) (sym (ap-const _)))))))
-          (λ (p , x)
-          → funext→ (pushout-ind _
-            (mk-coconeᵈ
-              ({! (λ z → (y : Y * (i ＝ i1)) → (id *₁ σ-part i z) y ＝ (τ-part Y i y *₁ id) z) ◃h glue !})
-              (λ q → ¡ (h (sym p ∙ q)))
-              (λ (y , q) → ¡ (h (sym p ∙ q)))))))
+  Sierpinski-interchange {X = X} {Y = Y} i x y
+    = cogap-unique
+        (σ-part-cocone i) (λ f → (id *₁ f) y) _
+        (λ p → Sierpinski-interchange-ι₁ i p y)
+        (λ x → *₁-const-right id x y)
+        (λ (p , x) → pushout-ind
+          ( λ y
+            → ap (λ f → (id *₁ f) y) (σ-part-cocone i .Cocone.filler (p , x))
+            ∙ *₁-const-right id x y
+            ＝ Sierpinski-interchange-ι₁ i p y ∙ glue (τ-part i y p , x))
+          (mk-coconeᵈ
+            (λ y → ap (_∙ glue (y , x)) (ap-const _))
+            (λ q → ¡ (h (sym p ∙ q)))
+            (λ (_ , q) → ¡ (h (sym p ∙ q))))
+          (y))
+        (x)
 }
 
 \agda{
