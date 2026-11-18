@@ -103,12 +103,40 @@ module WithCoStrict {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X) whe
   σ : Scn X → Lᵒ X
   σ = total-map σ-part
 
+  σ-part-nat
+    : {i j : Δ¹}
+    → (f : (j ＝ i1) → (i ＝ i1))
+    → (g : (i ＝ i0) → (j ＝ i0))
+    → (a : (i ＝ i0) * X)
+    → ((_∘ f) ∘ σ-part i) a ~ (σ-part j ∘ (g *₁ id)) a
+  σ-part-nat {i} {j} f g a q
+    = pushout-ind
+        (λ z → ((_∘ f) ∘ σ-part i) z q ＝ (σ-part j ∘ (g *₁ id)) z q)
+        (mk-coconeᵈ
+          (λ p → is-prop←is-single (is-single←i=1←i=0 p (f q)) _ _)
+          (~refl)
+          (λ (p , _) → is-truncated←is-single
+            (is-single←i=1←i=0 p (f q)) {n = 0𝕋} _ _ _ _))
+        (a)
+
 module _
   {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
-  (X-is-co-strict : is-co-strict X) (Y-is-co-strict : is-co-strict Y)
+  (X-is-co-strict : is-co-strict X)
+  (Y-is-co-strict : is-co-strict Y)
   (let module X = WithCoStrict X-is-co-strict)
   (let module Y = WithCoStrict Y-is-co-strict)
   where
+
+  σ-part-nat'
+    : {j : Δ¹} (f : X → Y) (a : (j ＝ i0) * X)
+    → f ∘ X.σ-part j a ~ Y.σ-part j ((id *₁ f) a)
+  σ-part-nat' f
+    = pushout-ind _
+        (mk-coconeᵈ
+          (λ p q → is-prop←is-single (Y.is-single←i=1←i=0 p q) _ _)
+          (λ _ → ~refl)
+          (λ (p , _) → funext→ (λ q → is-truncated←is-single
+            (Y.is-single←i=1←i=0 p q) {n = 0𝕋} _ _ _ _)))
 
   Sierpinski-interchange-ι₁
     : (i : Δ¹) (p : i ＝ i0) (y : Y * (i ＝ i1))
@@ -217,32 +245,6 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
     → Scn X
   ε̄̃ = pushout-rec ∘ ε̄̃-Cocone
 
-  σ-part-nat'
-    : ∀ {𝓤 𝓥} {j : Δ¹} {A : Type 𝓤} {B : Type 𝓥}
-      → (f : A → B)
-      → (a : (j ＝ i0) * A)
-      → f ∘ σ-part j a ~ σ-part j ((id *₁ f) a)
-  σ-part-nat' f =
-    pushout-ind _
-      (mk-coconeᵈ
-        (λ p q → ¡ (h (sym p ∙ q)))
-        (λ p → ~refl)
-        λ a → funext→ λ q → ¡ (h (sym (fst a) ∙ q)))
-
-  σ-part-nat
-    : ∀ {𝓤} {i j : Δ¹} {A : Type 𝓤}
-      → (f : (j ＝ i1) → (i ＝ i1))
-      → (g : (i ＝ i0) → (j ＝ i0))
-      → (a : (i ＝ i0) * A)
-      → ((_∘ f) ∘ (σ-part i)) a ~ (σ-part j ∘ (g *₁ id)) a
-  σ-part-nat {i = i} {j} {A} f g a q =
-    pushout-ind (λ z → ((_∘ f) ∘ σ-part i) z q ＝ (σ-part j ∘ (g *₁ id)) z q)
-      (mk-coconeᵈ
-        (λ p → ¡ (h (sym p ∙ f q)))
-        (~refl)
-        (λ (p , x) → ¡ (h (sym p ∙ f q))))
-      (a)
-
   ε : (i : Δ¹) → ((i ＝ i1 → X) × Lᵒ (i ＝ i1)) → Lᵒ X
   ε i (x , j , p) .fst = i ∧ j
   ε i (x , j , p) .snd = x ∘ ϕ
@@ -254,7 +256,7 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
     = x ∘ ϕ
         ~⟨ x ◃h (λ a → prop!) ⟩
       x ∘ σ-part (i ∧ j) ((χ *₁ id) p)
-        ~⟨ σ-part-nat' x ((χ *₁ id) p) ⟩
+        ~⟨ σ-part-nat' (¡ ∘ h) (¡ ∘ h) x ((χ *₁ id) p) ⟩
       (σ-part (i ∧ j) ∘ (id *₁ x) ∘ (χ *₁ id)) p
         ~⟨⟩
       happly ((σ-part (i ∧ j) ◃h (*₁-∘ id x χ id)) p)
@@ -284,7 +286,7 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
         → σ-part-nat ϕ ψ x
         ＝ ( λ a
           → (ap (σ-part i x) prop!)
-          ∙ (σ-part-nat' (σ-part i x) ((χ *₁ id) p) a)
+          ∙ (σ-part-nat' (¡ ∘ h) (¡ ∘ h) (σ-part i x) ((χ *₁ id) p) a)
           ∙ (happly (ap (σ-part (i ∧ j)) (*₁-∘ _ _ _ _ p)) a))
         ∙h happly (ap (σ-part (i ∧ j)) (H-path i x j p))
       lem j = pushout-ind _
