@@ -198,6 +198,10 @@ module _ {𝓤} {X : Type 𝓤} where
   ε̃ i (x , j , p) .fst = i ∧ j
   ε̃ i (x , j , p) .snd = (ψ *₁ id) x
 
+  ε : (i : Δ¹) → (i ＝ i1 → X) × Lᵒ (i ＝ i1) → Lᵒ X
+  ε i (x , j , p) .fst = i ∧ j
+  ε i (x , j , p) .snd = x ∘ ϕ
+
 module WithCoStrictMeet
   {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X)
   (let module X = WithCoStrict X-is-co-strict)
@@ -219,6 +223,23 @@ module WithCoStrictMeet
       ((χ ∘ (D.τ-part i p)) *₁ id) x
         ＝⟨⟩
       *₁-htpy (λ _ → prop!) ~refl x
+
+  f-htpy
+    : (i : Δ¹) (x : i ＝ i1 → X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1))
+    → x ∘ ϕ ~ X.σ-part (i ∧ j) ((χ *₁ x) p)
+  f-htpy i x j p
+    = x ∘ ϕ
+        ~⟨ x ◃h (λ a → prop!) ⟩
+      x ∘ D.σ-part (i ∧ j) ((χ *₁ id) p)
+        ~⟨ σ-part-nat' Δ¹-＝-is-co-strict X-is-co-strict x ((χ *₁ id) p) ⟩
+      (X.σ-part (i ∧ j) ∘ (id *₁ x) ∘ (χ *₁ id)) p
+        ~⟨⟩
+      happly ((X.σ-part (i ∧ j) ◃h (*₁-∘ id x χ id)) p)
+
+  f-path
+    : (i : Δ¹) (x : i ＝ i1 → X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1))
+    → x ∘ ϕ ＝ X.σ-part (i ∧ j) ((χ *₁ x) p)
+  f-path i x j = funext→ ∘ f-htpy i x j
 
 module EasyMode
   (h : i0 ≠ i1)
@@ -245,27 +266,6 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
     → Scn X
   ε̄̃ = pushout-rec ∘ ε̄̃-Cocone
 
-  ε : (i : Δ¹) → ((i ＝ i1 → X) × Lᵒ (i ＝ i1)) → Lᵒ X
-  ε i (x , j , p) .fst = i ∧ j
-  ε i (x , j , p) .snd = x ∘ ϕ
-
-  f-htpy
-    : ∀ i (x : i ＝ i1 → X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1))
-      → x ∘ ϕ ~ σ-part (i ∧ j) ((χ *₁ x) p)
-  f-htpy i x j p
-    = x ∘ ϕ
-        ~⟨ x ◃h (λ a → prop!) ⟩
-      x ∘ σ-part (i ∧ j) ((χ *₁ id) p)
-        ~⟨ σ-part-nat' (¡ ∘ h) (¡ ∘ h) x ((χ *₁ id) p) ⟩
-      (σ-part (i ∧ j) ∘ (id *₁ x) ∘ (χ *₁ id)) p
-        ~⟨⟩
-      happly ((σ-part (i ∧ j) ◃h (*₁-∘ id x χ id)) p)
-
-  f-path
-    : ∀ i (x : i ＝ i1 → X) (j : Δ¹) (p : (j ＝ i0) * (i ＝ i1))
-      → x ∘ ϕ ＝ σ-part (i ∧ j) ((χ *₁ x) p)
-  f-path i x j = funext→ ∘ f-htpy i x j
-
   S : (i : Δ¹) → Arrow-map (pushout-product (σ-part i) σ) σ
   S i .Arrow-Π.top = ε̄̃ i
   S i .Arrow-Π.bot = ε i
@@ -286,7 +286,7 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
         → σ-part-nat ϕ ψ x
         ＝ ( λ a
           → (ap (σ-part i x) prop!)
-          ∙ (σ-part-nat' (¡ ∘ h) (¡ ∘ h) (σ-part i x) ((χ *₁ id) p) a)
+          ∙ (σ-part-nat' Δ¹-＝-is-co-strict (¡ ∘ h) (σ-part i x) ((χ *₁ id) p) a)
           ∙ (happly (ap (σ-part (i ∧ j)) (*₁-∘ _ _ _ _ p)) a))
         ∙h happly (ap (σ-part (i ∧ j)) (H-path i x j p))
       lem j = pushout-ind _
