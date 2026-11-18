@@ -69,15 +69,18 @@ Scn₁ f (i , x) = (i , (id *₁ f) x)
 \agda{
 module WithCoStrict {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X) where
 
+  is-single←i=1←i=0 : {i : Δ¹} → (i ＝ i0) → (i ＝ i1) → is-singleton X
+  is-single←i=1←i=0 p q
+    = is-single-if-0=1←is-co-strict X-is-co-strict (sym p ∙ q)
+
   σ-part-cocone
     : (i : Δ¹)
     → Cocone (*-span (i ＝ i0) X) (i ＝ i1 → X)
   σ-part-cocone i .Cocone.p p q
-    = is-single-if-0=1←is-co-strict X-is-co-strict (sym p ∙ q) .centre
+    = is-single←i=1←i=0 p q .centre
   σ-part-cocone i .Cocone.q x _ = x
   σ-part-cocone i .Cocone.filler (p , x)
-    = funext→ (λ q
-      → is-single-if-0=1←is-co-strict X-is-co-strict (sym p ∙ q) .central x)
+    = funext→ (λ q → is-single←i=1←i=0 p q .central x)
 
   σ-part : (i : Δ¹) → (i ＝ i0) * X → (i ＝ i1) → X
   σ-part i = pushout-rec (σ-part-cocone i)
@@ -99,44 +102,58 @@ module WithCoStrict {𝓤} {X : Type 𝓤} (X-is-co-strict : is-co-strict X) whe
   σ : Scn X → Lᵒ X
   σ = total-map σ-part
 
+module _
+  {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
+  (X-is-co-strict : is-co-strict X) (Y-is-co-strict : is-co-strict Y)
+  (let module X = WithCoStrict X-is-co-strict)
+  (let module Y = WithCoStrict Y-is-co-strict)
+  where
+
+  Sierpinski-interchange-ι₁
+    : (i : Δ¹) (p : i ＝ i0) (y : Y * (i ＝ i1))
+    → (id *₁ X.σ-part i (ι₁ p)) y ＝ ι₁ (Y.τ-part i y p)
+  Sierpinski-interchange-ι₁ i p
+    = pushout-ind _
+        (mk-coconeᵈ
+          (~refl)
+          (λ q → sym (glue (_ , _)))
+          ( λ (_ , q)
+            → is-truncated←is-single
+               (*-single' (X.is-single←i=1←i=0 p q))
+               {n = 0𝕋} _ _ _ _))
+
+  Sierpinski-interchange
+    : (i : Δ¹)
+    → (x : (i ＝ i0) * X) (y : Y * (i ＝ i1))
+    → (id *₁ (X.σ-part i x)) y ＝ (Y.τ-part i y *₁ id) x
+  Sierpinski-interchange i x y
+    = cogap-unique
+        (X.σ-part-cocone i) (λ f → (id *₁ f) y) _
+        (λ p → Sierpinski-interchange-ι₁ i p y)
+        (λ x → *₁-const-right id x y)
+        (λ (p , x) → pushout-ind
+          ( λ y
+            → ap (λ f → (id *₁ f) y) (X.σ-part-cocone i .Cocone.filler (p , x))
+            ∙ *₁-const-right id x y
+            ＝ Sierpinski-interchange-ι₁ i p y ∙ glue (Y.τ-part i y p , x))
+          (mk-coconeᵈ
+            (λ y → ap (_∙ glue (y , x)) (ap-const _))
+            ( λ q
+              → is-truncated←is-single
+                  (*-single' (X.is-single←i=1←i=0 p q))
+                  {n = 0𝕋} _ _ _ _)
+            ( λ (_ , q)
+              → is-truncated←is-single
+                  (*-single' (X.is-single←i=1←i=0 p q))
+                  {n = 1𝕋} _ _ _ _ _ _))
+          (y))
+        (x)
+
 module EasyMode
   (h : i0 ≠ i1)
   (let module M {𝓤} {X : Type 𝓤} = WithCoStrict {X = X} (¡ ∘ h))
   where
   open M public
-
-  Sierpinski-interchange-ι₁
-    : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
-      → (i : Δ¹) (p : i ＝ i0) (y : Y * (i ＝ i1))
-      → (id *₁ σ-part {X = X} i (ι₁ p)) y ＝ ι₁ (τ-part i y p)
-  Sierpinski-interchange-ι₁ i p
-    = pushout-ind _
-        (mk-coconeᵈ
-          (~refl)
-          (λ q → ¡ (h (sym p ∙ q)))
-          (λ (_ , q) → ¡ (h (sym p ∙ q))))
-
-  Sierpinski-interchange
-    : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
-      → (i : Δ¹)
-      → (x : (i ＝ i0) * X) (y : Y * (i ＝ i1))
-      → (id *₁ (σ-part i x)) y ＝ (τ-part i y *₁ id) x
-  Sierpinski-interchange {X = X} {Y = Y} i x y
-    = cogap-unique
-        (σ-part-cocone i) (λ f → (id *₁ f) y) _
-        (λ p → Sierpinski-interchange-ι₁ i p y)
-        (λ x → *₁-const-right id x y)
-        (λ (p , x) → pushout-ind
-          ( λ y
-            → ap (λ f → (id *₁ f) y) (σ-part-cocone i .Cocone.filler (p , x))
-            ∙ *₁-const-right id x y
-            ＝ Sierpinski-interchange-ι₁ i p y ∙ glue (τ-part i y p , x))
-          (mk-coconeᵈ
-            (λ y → ap (_∙ glue (y , x)) (ap-const _))
-            (λ q → ¡ (h (sym p ∙ q)))
-            (λ (_ , q) → ¡ (h (sym p ∙ q))))
-          (y))
-        (x)
 }
 
 \agda{
@@ -170,7 +187,7 @@ module _ {𝓤} {X : Type 𝓤} {h : i0 ≠ i1} (open EasyMode h) where
     = (χ *₁ σ-part i x) p
         ＝⟨ sym (*₁-∘ _ _ _ _ p) ⟩
       ((χ *₁ id) ∘ (id *₁ σ-part i x)) p
-        ＝⟨ ap (χ *₁ id) (Sierpinski-interchange i x p) ⟩
+        ＝⟨ ap (χ *₁ id) (Sierpinski-interchange (¡ ∘ h) (¡ ∘ h) i x p) ⟩
       ((χ *₁ id) ∘ (τ-part i p) *₁ id) x
         ＝⟨ *₁-∘ _ _ _ _ x ⟩
       ((χ ∘ (τ-part i p)) *₁ id) x
