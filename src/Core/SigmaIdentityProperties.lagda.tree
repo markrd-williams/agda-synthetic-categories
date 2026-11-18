@@ -15,6 +15,11 @@ open import Foundations.Prelude
 }
 
 \agda{
+Σ-path→-refl
+  : ∀ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥}
+      {a : A} {x y : B a} (p : x ＝ y)
+    → Σ-path→ {B = B} (refl , p) ＝ ap (a ,_) p
+Σ-path→-refl refl = refl
 
 ＝Σ-∙ :
    ∀ {𝓤 𝓥} {A : Type 𝓤} {B : A → Type 𝓥} {x y z : Σ A B}
