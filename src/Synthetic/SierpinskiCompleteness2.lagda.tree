@@ -1,0 +1,397 @@
+\date{2026-10-13}
+\date{2026-11-18}
+\title{Sierpiński Completeness}
+\taxon{Module}
+\author{markwilliams}
+\contributor{fredrikbakke}
+\import{stt-macros}
+
+\p{
+Based on work in progress by [Bakke](fredrikbakke), [Sterling](jonsterling),
+[Damuni Williams](markwilliams) and [Ye](lingyuanye), revising an earlier proof in
+[[BSWY26]].
+}
+
+\agda{
+{-# OPTIONS --lossy-unification #-}
+
+open import Foundations.Universes
+open import Algebra.BoundedPoset
+open import Algebra.Order.BinaryMeets
+
+module Synthetic.SierpinskiCompleteness2
+  {𝓘} (I : Type 𝓘)
+  (P Q : I → Type 𝓘)
+  where
+
+open import Axioms.UF
+}
+
+\agda-imports{
+\agda{
+open import Foundations.Prelude
+
+open import Core.Arrows
+open import Core.ArrowEquiv
+open import Core.ArrowRetracts
+open import Core.CanonicalPushouts
+
+open import Ergonomics.Representation
+open import Ergonomics.Extensionality
+open import Ergonomics.Universal
+
+open import Core.PushoutSums
+open import Core.SigmaDependentIdentity
+open import Core.SigmaIdentityProperties
+open import Core.Joins
+}
+}
+
+\agda{
+Lᵒ : ∀ {𝓤} (X : Type 𝓤) → Type (𝓘 ⊔ 𝓤)
+Lᵒ X = Σ[ i ∶ I ] (P i → X)
+
+Lᵒ₁ : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} (f : X → Y)
+    → Lᵒ X → Lᵒ Y
+Lᵒ₁ f (i , p) = i , (f ∘ p)
+
+Scn : ∀ {𝓤} (X : Type 𝓤) → Type (𝓘 ⊔ 𝓤)
+Scn X = Σ[ i ∶ I ] (Q i * X)
+
+Scn₁
+  : ∀ {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥} (f : X → Y)
+    → Scn X → Scn Y
+Scn₁ f (i , x) = (i , (id *₁ f) x)
+
+is-P-Q-co-strict : ∀ {𝓤} → Type 𝓤 → Type (𝓤 ⊔ 𝓘)
+is-P-Q-co-strict X = ∀ {i} → P i → Q i → is-singleton X
+
+module WithCoStrict
+  {𝓤}
+  {X : Type 𝓤}
+  (X-co-strict : is-P-Q-co-strict X)
+  where
+
+  σ-part-cocone
+    : (i : I)
+    → Cocone (*-span (Q i) X) (P i → X)
+  σ-part-cocone i .Cocone.p q p
+    = X-co-strict p q .centre 
+  σ-part-cocone i .Cocone.q x _ = x
+  σ-part-cocone i .Cocone.filler (q , x)
+    = funext→ λ p → X-co-strict p q .central _
+
+
+  σ-part : (i : I) → Q i * X → P i → X
+  σ-part i = pushout-rec (σ-part-cocone i)
+
+  τ-part-cocone
+    : (i : I)
+    → Cocone (*-span X (P i)) (Q i  → X)
+  τ-part-cocone i .Cocone.p x _
+    = x
+  τ-part-cocone i .Cocone.q p q
+    = X-co-strict p q .centre
+  τ-part-cocone i .Cocone.filler (x , p)
+    = funext→ (λ q → sym
+      (X-co-strict p q .central x))
+
+  τ-part : (i : I) → X * P i → Q i → X
+  τ-part = pushout-rec ∘ τ-part-cocone
+
+  σ : Scn X → Lᵒ X
+  σ = total-map σ-part
+
+  σ-part-nat
+    : {i j : I}
+    → (f : P j → P i)
+    → (g : Q i → Q j)
+    → (a : Q i * X)
+    → ((_∘ f) ∘ σ-part i) a ~ (σ-part j ∘ (g *₁ id)) a
+  σ-part-nat {i} {j} f g a p
+    = pushout-ind
+        (λ z → ((_∘ f) ∘ σ-part i) z p ＝ (σ-part j ∘ (g *₁ id)) z p)
+        (mk-coconeᵈ
+          (λ q → is-prop←is-single (X-co-strict p (g q)) _ _)
+          (~refl)
+          (λ (q , _) → is-truncated←is-single
+            (X-co-strict (f p) q) {n = 0𝕋} _ _ _ _))
+        (a)
+
+module _
+  {𝓤 𝓥} {X : Type 𝓤} {Y : Type 𝓥}
+  (X-co-strict : is-P-Q-co-strict X)
+  (Y-co-strict : is-P-Q-co-strict Y)
+  (let module X = WithCoStrict X-co-strict)
+  (let module Y = WithCoStrict Y-co-strict)
+  where
+
+  σ-part-nat'
+    : {j : I} (f : X → Y) (a : Q j * X)
+    → f ∘ X.σ-part j a ~ Y.σ-part j ((id *₁ f) a)
+  σ-part-nat' f
+    = pushout-ind _
+        (mk-coconeᵈ
+          (λ q p → is-prop←is-single (Y-co-strict p q) _ _)
+          (λ _ → ~refl)
+          (λ (q , _) → funext→ (λ p → is-truncated←is-single
+            (Y-co-strict p q) {n = 0𝕋} _ _ _ _)))
+
+  Sierpinski-interchange-ι₁
+    : (i : I) (q : Q i) (y : Y * P i)
+    → (id *₁ X.σ-part i (ι₁ q)) y ＝ ι₁ (Y.τ-part i y q)
+  Sierpinski-interchange-ι₁ i q
+    = pushout-ind _
+        (mk-coconeᵈ
+          (~refl)
+          (λ p → sym (glue (_ , _)))
+          ( λ (_ , p) → is-truncated←is-single
+              (*-single' (X-co-strict p q)) {n = 0𝕋} _ _ _ _))
+
+  Sierpinski-interchange
+    : (i : I)
+    → (x : Q i * X) (y : Y * P i)
+    → (id *₁ (X.σ-part i x)) y ＝ (Y.τ-part i y *₁ id) x
+  Sierpinski-interchange i x y
+    = cogap-unique
+        (X.σ-part-cocone i) (λ f → (id *₁ f) y) _
+        (λ q → Sierpinski-interchange-ι₁ i q y)
+        (λ x → *₁-const-right id x y)
+        (λ (q , x) → pushout-ind
+          ( λ y
+            → ap (λ f → (id *₁ f) y) (X.σ-part-cocone i .Cocone.filler (q , x))
+            ∙ *₁-const-right id x y
+            ＝ Sierpinski-interchange-ι₁ i q y ∙ glue (Y.τ-part i y q , x))
+          (mk-coconeᵈ
+            (λ y → ap (_∙ glue (y , x)) (ap-const _))
+            ( λ p → is-truncated←is-single
+                (*-single' (X-co-strict p q)) {n = 0𝕋} _ _ _ _)
+            ( λ (_ , p) → is-truncated←is-single
+                (*-single' (X-co-strict p q)) {n = 1𝕋} _ _ _ _ _ _))
+          (y))
+        (x)
+
+
+
+module _
+  {𝓤} {X : Type 𝓤}
+  (X-co-strict : is-P-Q-co-strict X)
+  (open WithCoStrict X-co-strict)
+  (P-co-strict : ∀ {i} → is-P-Q-co-strict (P i))
+  (let module P-cs {i} = WithCoStrict (P-co-strict {i}))
+  (Q-co-strict : ∀ {i} → is-P-Q-co-strict (Q i))
+  (let module Q-cs {i} = WithCoStrict (Q-co-strict {i}))
+  (Q₁←P₁ : ∀ {i} {j} → (P i → P j) → (Q j → Q i))
+  (Q₁←P₁-equiv : ∀ {i} {j} → is-equiv (Q₁←P₁ {i} {j}))
+  (let module Q₁←P₁-equiv {i} {j} = is-equiv (Q₁←P₁-equiv {i} {j}))
+  (let P₁←Q₁-equiv {i} {j} = is-equiv⁻¹ (Q₁←P₁-equiv {i} {j}))
+  (let module P₁←Q₁-equiv {i} {j} = is-equiv (is-equiv⁻¹ (Q₁←P₁-equiv {i} {j})))
+  where
+
+
+  ε̄ : (i : I) → (P i → X) × Scn (P i) → Scn X
+  ε̄ i (x , j , p) .fst = j
+  ε̄ i (x , j , p) .snd = (id *₁ x) p
+
+  ε̃ : (i : I) → (Q i * X) × Lᵒ (P i) → Scn X
+  ε̃ i (x , j , p) .fst = j
+  ε̃ i (x , j , p) .snd = ((Q₁←P₁ p) *₁ id) x
+
+  ε : (i : I) → (P i → X) × Lᵒ (P i) → Lᵒ X
+  ε i (x , j , p) .fst = j
+  ε i (x , j , p) .snd = x ∘ p
+
+  lem : ∀ i j  → Q₁←P₁ ∘ P-cs.σ-part j ~ Q-cs.τ-part i
+  lem i j =
+    cogap-unique _
+      (Q₁←P₁)
+      (Q-cs.τ-part-cocone i)
+      (λ q →
+        unap-equiv P₁←Q₁-equiv
+          (is-truncated←is-single
+            (Π-is-single (λ p → P-co-strict p q)) {n = -1𝕋} _ _))
+     (λ p → funext→ (λ q → sym (Q-co-strict p q .central _)))
+     λ { (x , p) →
+         unap-equiv global-funext
+           (funext→
+             (λ q → is-truncated←is-single (Q-co-strict p q) {n = 0𝕋} _ _ _ _ ))}
+
+
+  H-path : ∀ i x j p → (id *₁ σ-part i x) p ＝ ((Q₁←P₁ ∘ P-cs.σ-part j) p *₁ id) x
+  H-path i x j p = (Sierpinski-interchange X-co-strict (Q-co-strict) i x p
+            ∙ *₁-htpy (λ q → sym (happly (lem i j p) q)) ~refl x)
+
+  H : (i : I) → ε̄ i ∘ (σ-part i ×₁ id) ~ ε̃ i ∘ id ×₁ P-cs.σ
+  H i (x , (j , p)) =
+    ap (j ,_) (Sierpinski-interchange X-co-strict (Q-co-strict) i x p
+            ∙ *₁-htpy (λ q → sym (happly (lem i j p) q)) ~refl x)
+
+  ε̄̃-Cocone
+    : (i : I)
+    → Cocone (mk-span _ (σ-part i ×₁ id) (id ×₁ P-cs.σ)) (Scn X)
+  ε̄̃-Cocone i .Cocone.p = ε̄ i
+  ε̄̃-Cocone i .Cocone.q = ε̃ i
+  ε̄̃-Cocone i .Cocone.filler = H i
+
+  ε̄̃ : (i : I)
+    → Pushout (σ-part i ×₁ id) (id ×₁ P-cs.σ)
+    → Scn X
+  ε̄̃ = pushout-rec ∘ ε̄̃-Cocone
+
+
+  S : (i : I) → Arrow-map (pushout-product (σ-part i) (P-cs.σ)) σ
+  S i .Arrow-Π.top = ε̄̃ i
+  S i .Arrow-Π.bot = ε i
+  S i .Arrow-Π.comm =
+    pushout-ind _
+      (mk-coconeᵈ
+        (f)
+        (g)
+        λ {(x , j , q) → Idᵈ-func←Square _ _ _
+          (mk-square (
+      ( ((ε i ∘ (σ-part i □ P-cs.σ)) ◃h glue) (x , j , q)
+                ∙ g (x , j , P-cs.σ-part j q)
+
+                ＝⟨ cogap-◃h-glue _ (ε i) (x , j , q) ▸ g (x , j , P-cs.σ-part j q) ⟩
+
+                (ε i ◃h Product-hom (σ-part i) P-cs.σ .Arrow-Π.comm) (x , j , q)
+                ∙ g (x , j , P-cs.σ-part j q)
+
+                ＝⟨⟩
+
+                g (x , j , P-cs.σ-part j q)
+
+                ＝⟨ ap (ap (j ,_)) (  (ap funext→ (lem' j x q) ∙ funext-∙ _ (happly (ap (σ-part j) (H-path i x j q)))) ∙ ap ((f-path (σ-part i x) j q) ∙_) (funext.η _)) ⟩
+
+                ap (j ,_)
+                   (f-path (σ-part i x) j q ∙ ap (σ-part j) (H-path i x j q))
+
+                ＝⟨ ap-∙ (j ,_) _ _ ⟩
+
+                f (σ-part i x , j , q)
+                ∙ ap (j ,_) (ap (σ-part j) (H-path i x j q))
+
+                 ＝⟨ f (σ-part i x , j , q)
+                      ◂ ( sym (ap-∘ (j ,_) (σ-part j) _)
+                        ∙ ap-∘ σ (j ,_) _) ⟩
+
+                f (σ-part i x , j , q)
+                ∙ ap σ (H i (x , j , q))
+
+                ＝⟨ f (σ-part i x , j , q) ◂ sym (cogap-◃h-glue _ σ (x , j , q)) ⟩
+
+                f (σ-part i x , j , q) ∙ ap (postcomp-Π (λ a → σ) (ε̄̃ i)) (glue (x , j , q)) ∎ )))})
+    where
+      f-path : ∀ x j q → x ∘ P-cs.σ-part j q ＝ σ-part j ((id *₁ x) q)
+      f-path x j q = funext→ (λ p → σ-part-nat' P-co-strict X-co-strict x q p)
+
+      f = λ {(x , j , q)  → ap (j ,_) (f-path x j q)}
+      g = λ {(x , j , q) → ap (j ,_) (funext→ (σ-part-nat q (Q₁←P₁ q) x))}
+
+      lem'
+        : (j : I)
+          (x : Q i * X)
+          (q : Q j * P i)
+        → σ-part-nat (P-cs.σ-part j q) (Q₁←P₁ (P-cs.σ-part j q)) x
+        ＝ σ-part-nat' P-co-strict X-co-strict (σ-part i x) q ∙h happly (ap (σ-part j) (H-path i x j q))
+      lem' j =
+        pushout-ind _
+          (mk-coconeᵈ
+            (λ q r → funext→ (λ p → is-truncated←is-single (X-co-strict p (Q-cs.τ-part i r q)) {n = 0𝕋} _ _ _ _))
+            (λ x →
+              pushout-ind _
+                (mk-coconeᵈ
+                  (λ q → funext→ (λ p → is-truncated←is-single (X-co-strict p q) {n = 0𝕋} _ _ _ _))
+                  (~refl)
+                  λ (q , _) → Π-is-set (λ p → is-truncated←is-single (X-co-strict p q) {n = 1𝕋} _ _) _ _ _ _))
+            λ (q , _) → Π-is-prop (λ r → Π-is-set (λ p → is-truncated←is-single (X-co-strict p (Q-cs.τ-part i r q)) {n = 1𝕋} _ _) _ _) _ _)
+
+  Sierpinski-retraction-square
+    : Arrow-map (total-map (λ i → pushout-product (σ-part i) P-cs.σ)) σ
+  Sierpinski-retraction-square = uncurry-square S
+
+  g : (a : Scn X) → Σ[ i ∶ I ] (Pushout ((σ-part i ×₁1 _)) (_ 1×₁ P-cs.σ))
+  g = total-map (λ i x → ι₂ (x , i , id))
+
+  g' : (a : Lᵒ X) → Σ[ i ∶ I ] ((P i → X) × Lᵒ (P i))
+  g' = total-map (λ i x → (x , i , id))
+
+  Sierpinski-inclusion-square : Arrow-map σ (total-map (λ i → (σ-part i) □ P-cs.σ))
+  Sierpinski-inclusion-square .Arrow-Π.top = g
+  Sierpinski-inclusion-square .Arrow-Π.bot a = (a .fst , (a .snd) , a .fst , id)
+  Sierpinski-inclusion-square .Arrow-Π.comm = ~refl
+
+  Idᶠ-∘-prop
+    : ∀ {𝓤} {i j : I} {Y : Type 𝓤}
+      → (p : j ＝ i)
+      → (h : P i → Y)
+      → Idᶠ _ p (h ∘ tr P p) h
+  Idᶠ-∘-prop refl h = refl
+
+  Idᶠ-*-prop
+    : {i j : I}
+    → (p : j ＝ i)
+    → (x : Q i * X)
+    → Idᶠ _ p (((tr Q (sym p)  *₁ id) x)) x
+  Idᶠ-*-prop {i} refl
+    = *₁-htpy ~refl ~refl ∙h (*₁-id h⁻¹)
+
+  Path-Idᶠ-σ-nat
+    : {i j : I}
+    → (p : j ＝ i)
+    → (x : (Q i) * X)
+    → transIdᶠ
+        refl
+        p
+        (funext→ (σ-part-nat (tr P p) (tr Q (sym p)) x))
+        (happlyᶠ p (σ-part j) (σ-part i) (apᶠ σ-part p) (Idᶠ-*-prop p x))
+    ＝ Idᶠ-∘-prop p (σ-part i x)
+  Path-Idᶠ-σ-nat refl  = pushout-ind _
+    (mk-coconeᵈ
+      (λ q → is-truncated←is-single
+        (Π-is-single (λ p → X-co-strict p q)) {n = 0𝕋} _ _ _ _)
+      (λ _ → ap (λ p → ap id p ∙ refl) funext-refl)
+      (λ (q , _) → is-truncated←is-single
+        (Π-is-single (λ p → X-co-strict p q)) {n = 1𝕋} _ _ _ _ _ _))
+
+
+  P→P-single←Q : ∀ {i} → Q i → is-prop (Q i → Q i)
+  P→P-single←Q q f g = unap-equiv P₁←Q₁-equiv (is-truncated←is-single (Π-is-single (λ a → P-co-strict a q)) {n = -1𝕋} _ _)
+
+  top : uncurry ε̄̃ ∘ g ~ id
+  top (i , x) = ap (i ,_)
+    ((*₁-htpy
+      (λ q →
+        happly (P→P-single←Q q (Q₁←P₁ id) id) q) ~refl
+        ∙h *₁-id h⁻¹) x)
+
+  Path : {i : I}
+       → (x : (Q i) * X)
+       → funext→ (σ-part-nat id (Q₁←P₁ id) x) ∙  (ap (σ-part i) ((*₁-htpy (λ q → happly (P→P-single←Q q (Q₁←P₁ id) id) q) ~refl ∙h *₁-id h⁻¹) x)) ＝ refl
+  Path  = pushout-ind _
+    (mk-coconeᵈ
+      (λ q → is-truncated←is-single (Π-is-single (λ p → X-co-strict p q)) {n = 0𝕋} _ _ _ _)
+      (λ x → ∙-reflr _ ∙ funext-refl)
+      λ (q , _) → is-truncated←is-single (Π-is-single (λ p → X-co-strict p q)) {n = 1𝕋} _ _ _ _ _ _)
+
+
+  bot : (x : Lᵒ X) → ε (x .fst) (g' x .snd) ＝ x
+  bot = Σ-path→ ∘ uncurry (λ i x → (refl , refl))
+
+  Sierpinski-retract-coh
+    : Arrow-map-path
+        (paste-squares Sierpinski-retraction-square Sierpinski-inclusion-square)
+        (id-square)
+  Sierpinski-retract-coh .fst
+    = top
+  Sierpinski-retract-coh .snd .fst
+    = bot
+  Sierpinski-retract-coh .snd .snd (i , x)
+    = ap (K (g (i , x)) ∙_) (sym (ap-∘ σ (i ,_) _))
+    ∙ ap (K (g (i , x)) ∙_) (ap-∘ _ _  _)
+    ∙ sym (ap-∙ _ _ _)
+    ∙ (ap (ap (i ,_)) (Path x))
+    where
+      K = Sierpinski-retraction-square .Arrow-Π.comm
+
+}
